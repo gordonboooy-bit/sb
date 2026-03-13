@@ -1,0 +1,4224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fated Threads — Ancient Crystal Oracle</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Noto+Serif+SC:wght@300;400&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════
+   FATED THREADS — Mobile-First Design System
+   Target: 390×844 (iPhone 14), scales up
+══════════════════════════════════════════ */
+:root{
+  /* Chinese minimal white palette */
+  --gold:#B8860B;--gold2:#D4A843;--gold3:#8B6914;
+  --ink:#0D0802;--ink2:#2A1A04;--ink3:#4A3010;
+  --red:#C0392B;--jade:#2E7D52;--jade2:#4E9E6E;
+  --text:#1A1208;--dim:#6B5A3A;--dim2:#9A8060;
+  --deep:#FDFAF5;--surface:#FEFCF7;--surface2:#F7F3EA;
+  --border:rgba(180,140,60,.18);--border2:rgba(180,140,60,.08);
+  /* Mobile spacing tokens */
+  --sp-xs:8px;--sp-sm:14px;--sp-md:20px;--sp-lg:28px;--sp-xl:40px;
+  --touch:52px;
+  --sat:env(safe-area-inset-top,0px);
+  --sab:env(safe-area-inset-bottom,0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{font-size:18px;-webkit-text-size-adjust:100%;}
+html{width:100%;height:100%;}
+body{width:100%;min-height:100%;overflow:hidden;-webkit-overflow-scrolling:touch;}
+body{
+  background:var(--deep);color:var(--text);
+  font-family:'EB Garamond',serif;
+  cursor:none;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── CUSTOM CURSOR (desktop only) ── */
+#cur,#cur2{
+  position:fixed;pointer-events:none;z-index:9999;
+  border-radius:50%;transform:translate(-50%,-50%);
+}
+#cur{
+  width:20px;height:20px;
+  border:1px solid rgba(139,105,20,.6);
+  mix-blend-mode:multiply;
+  transition:width .15s,height .15s,opacity .2s;
+}
+#cur2{width:4px;height:4px;background:var(--gold3);transition:all .06s;}
+@media(pointer:coarse){#cur,#cur2{display:none;} body{cursor:auto;}}
+
+/* ── BACKGROUND — white Chinese ink wash ── */
+#galaxy{display:none;}
+body::before{
+  content:'';position:fixed;top:0;right:0;bottom:0;left:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 55% at 15% 12%, rgba(210,168,80,.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 45% at 82% 78%, rgba(180,140,60,.04) 0%, transparent 55%),
+    linear-gradient(170deg, #FDFAF5 0%, #FEFCF7 50%, #FAF7EE 100%);
+  transition:background 1.5s ease;
+}
+/* Paper texture overlay */
+#noise-layer{
+  position:fixed;top:0;right:0;bottom:0;left:0;z-index:1;pointer-events:none;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:180px 180px;
+}
+
+/* ── PAGE SYSTEM ── */
+.pg{
+  position:fixed;top:0;right:0;bottom:0;left:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:10;
+  padding:calc(var(--sat) + var(--sp-md)) var(--sp-md) calc(var(--sab) + var(--sp-md));
+  opacity:0;pointer-events:none;
+  overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;
+}
+.pg.active{opacity:1;pointer-events:all;}
+
+/* Fade transition */
+.pg{transition:opacity .35s ease;}
+
+/* Page container — max width for tablets/desktop */
+.pc{
+  width:100%;max-width:440px;
+  display:flex;flex-direction:column;align-items:center;
+  position:relative;z-index:2;
+  padding:0;
+}
+
+/* ── PAGE VEIL (transition overlay) ── */
+#page-veil{
+  position:fixed;top:0;right:0;bottom:0;left:0;z-index:500;pointer-events:none;
+  background:radial-gradient(ellipse at 50% 50%, #F0EAD8 0%, #FDFAF5 70%);
+  opacity:0;
+}
+#page-veil.flash{animation:veil-flash 1.4s ease-out forwards;}
+@keyframes veil-flash{0%{opacity:0;}15%{opacity:1;}45%{opacity:.7;}100%{opacity:0;}}
+#page-veil canvas{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;}
+
+/* ── ORNAMENTS (corners) ── */
+.orn{position:fixed;opacity:.25;pointer-events:none;z-index:4;}
+.orn-tl{top:calc(var(--sat)+8px);left:8px;}
+.orn-tr{top:calc(var(--sat)+8px);right:8px;transform:scaleX(-1);}
+.orn-bl{bottom:calc(var(--sab)+8px);left:8px;transform:scaleY(-1);}
+.orn-br{bottom:calc(var(--sab)+8px);right:8px;transform:scale(-1);}
+
+/* ── HERO CONSTELLATION ── */
+.hero-wrap{
+  position:relative;
+  width:min(220px, 55vw);
+  height:min(220px, 55vw);
+  margin-bottom:var(--sp-md);
+  flex-shrink:0;
+}
+#star-canvas{width:100%;height:100%;position:absolute;top:0;left:0;}
+.hero-geo{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  animation:geo-spin 40s linear infinite;
+}
+#geo-hex{animation:geo-spin-rev 28s linear infinite;transform-origin:130px 130px;}
+@keyframes geo-spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes geo-spin-rev{from{transform:rotate(0deg);}to{transform:rotate(-360deg);}}
+
+/* ── GRADIENT TEXT MIXIN ── */
+.grad-gold{
+  color:transparent;
+  background:linear-gradient(155deg,#fff8e8 0%,var(--gold2) 38%,var(--gold) 62%,#b8860b 100%);
+  -webkit-background-clip:text;background-clip:text;
+}
+
+/* ── P1 TYPOGRAPHY ── */
+.h1{
+  font-family:'Cinzel Decorative',cursive;
+  font-size:clamp(2.4rem, 9vw, 3.8rem);
+  line-height:1.12;
+  letter-spacing:.06em;
+  text-align:center;
+  color:transparent;
+  background:linear-gradient(155deg,#2A1E0A 0%,var(--gold3) 40%,var(--gold) 65%,#8B6914 100%);
+  -webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 0 18px rgba(180,140,60,.18));
+}
+.rule{
+  width:min(240px,70vw);height:1px;
+  background:linear-gradient(90deg,transparent,rgba(180,140,60,.4),rgba(180,140,60,.8),rgba(180,140,60,.4),transparent);
+  margin:var(--sp-sm) auto var(--sp-xs);position:relative;
+}
+.rule::before,.rule::after{
+  content:'✦';position:absolute;top:50%;transform:translateY(-50%);
+  color:var(--gold3);font-size:.55rem;opacity:.5;
+}
+.rule::before{left:28%}.rule::after{right:28%}
+.h1-sub{
+  font-family:'Cinzel',serif;
+  font-size:clamp(.88rem,.92rem + .3vw,1.05rem);
+  letter-spacing:.36em;color:rgba(107,80,16,.45);
+  text-align:center;text-transform:uppercase;
+  margin-bottom:var(--sp-sm);
+}
+.h1-body{
+  max-width:340px;text-align:center;
+  font-size:clamp(1.1rem, 4vw, 1.25rem);
+  line-height:1.85;color:var(--dim2);
+  margin-bottom:var(--sp-md);
+  padding:0 4px;
+}
+.h1-body strong{color:var(--gold);font-weight:400;}
+
+/* Feature row */
+.cult-row{
+  display:flex;gap:clamp(14px,4vw,24px);
+  margin-bottom:var(--sp-lg);justify-content:center;
+  flex-wrap:nowrap;
+}
+.cr{text-align:center;opacity:.5;transition:all .4s;flex-shrink:0;}
+.cr span:first-child{font-size:clamp(1.5rem,5vw,1.85rem);display:block;margin-bottom:4px;}
+.cr-l{font-family:'Cinzel',serif;font-size:.62rem;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;}
+
+/* ── STEP DOTS ── */
+.sdots{
+  display:flex;gap:8px;justify-content:center;
+  margin-bottom:var(--sp-lg);
+  padding-top:calc(var(--sat) + 4px);
+}
+.sd{width:6px;height:6px;border-radius:50%;background:rgba(180,140,60,.15);transition:all .4s;}
+.sd.done{background:rgba(180,140,60,.45);}
+.sd.act{background:var(--gold);box-shadow:0 0 6px rgba(180,140,60,.4);width:24px;border-radius:3px;}
+
+/* ── PAGE HEADER ── */
+.pg-header{text-align:center;margin-bottom:var(--sp-lg);position:relative;}
+.pg-t{
+  font-family:'Cinzel Decorative',cursive;
+  font-size:clamp(1.5rem, 6.5vw, 2.2rem);
+  line-height:1.2;
+  color:transparent;
+  background:linear-gradient(155deg,#1A1208 0%,var(--ink2) 40%,var(--gold3) 70%,var(--gold) 100%);
+  -webkit-background-clip:text;background-clip:text;
+  text-align:center;margin-bottom:var(--sp-xs);
+  filter:drop-shadow(0 0 12px rgba(180,140,60,.15));
+  letter-spacing:.04em;
+}
+.pg-rule{
+  width:120px;height:1px;margin:0 auto var(--sp-xs);
+  background:linear-gradient(90deg,transparent,rgba(180,140,60,.4),rgba(180,140,60,.8),rgba(180,140,60,.4),transparent);
+}
+.pg-s{
+  font-family:'Cinzel',serif;
+  font-size:clamp(.68rem,.72rem,.8rem);
+  color:rgba(107,80,16,.38);
+  text-align:center;letter-spacing:.28em;text-transform:uppercase;
+}
+
+/* ── BUTTONS ── */
+.btn{
+  position:relative;
+  background:linear-gradient(180deg,#FEFAF0 0%,#FAF4E0 100%);
+  border:1px solid rgba(180,140,60,.5);
+  color:var(--ink2);
+  font-family:'Cinzel',serif;
+  font-size:clamp(.88rem,.95rem + .2vw,1.05rem);
+  letter-spacing:.26em;
+  padding:0 var(--sp-xl);
+  height:58px;
+  min-width:min(270px, 82vw);
+  text-transform:uppercase;overflow:hidden;
+  transition:all .3s;cursor:none;
+  margin-top:var(--sp-xs);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 2px 12px rgba(180,140,60,.12),inset 0 1px 0 rgba(255,255,255,.9);
+}
+.btn::before{
+  content:'';position:absolute;top:0;left:-100%;
+  width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(180,140,60,.1),transparent);
+  transition:left .45s;
+}
+.btn::after{
+  content:'';position:absolute;top:3px;right:3px;bottom:3px;left:3px;
+  border:1px solid rgba(180,140,60,.12);pointer-events:none;
+}
+.btn:active{transform:scale(.97);background:linear-gradient(180deg,#F5EDD0 0%,#EDE4C0 100%);}
+@media(hover:hover){
+  .btn:hover::before{left:100%;}
+  .btn:hover{
+    background:linear-gradient(180deg,#FEFAF0 0%,#F5EDD0 100%);
+    box-shadow:0 4px 24px rgba(180,140,60,.22),inset 0 1px 0 rgba(255,255,255,.9);
+    transform:translateY(-2px);border-color:var(--gold);
+  }
+}
+.btn-ghost{
+  background:transparent;border:none;
+  color:rgba(107,80,16,.45);
+  font-family:'Cinzel',serif;
+  font-size:.76rem;letter-spacing:.18em;
+  margin-top:var(--sp-xs);
+  height:52px;
+  padding:0 var(--sp-md);
+  min-width:min(200px,70vw);
+  display:flex;align-items:center;justify-content:center;
+  transition:color .3s;cursor:none;
+  text-transform:uppercase;
+}
+.btn-ghost:active{color:var(--gold);}
+@media(hover:hover){.btn-ghost:hover{color:var(--gold);}}
+
+/* ── DATE INPUT ── */
+.fg{width:100%;margin-bottom:var(--sp-md);}
+.fl{
+  display:block;font-family:'Cinzel',serif;
+  font-size:.75rem;color:rgba(212,168,67,.65);
+  letter-spacing:.22em;text-transform:uppercase;
+  margin-bottom:var(--sp-sm);
+}
+.fi{
+  width:100%;
+  background:#FEFCF7;
+  border:1px solid rgba(180,140,60,.3);
+  color:var(--ink);
+  font-family:'EB Garamond',serif;
+  font-size:1.35rem;
+  padding:0 var(--sp-md);
+  height:58px;
+  outline:none;
+  transition:border-color .3s,box-shadow .3s;
+  color-scheme:light;
+  cursor:auto;
+  border-radius:0;
+  -webkit-appearance:none;
+  appearance:none;
+  box-shadow:inset 0 1px 4px rgba(180,140,60,.06);
+}
+.fi:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(180,140,60,.1);}
+.fi::placeholder{color:rgba(107,80,16,.3);}
+
+/* ── WISH CHIPS ── */
+.chips{
+  display:grid;
+  grid-template-columns:repeat(2, 1fr);
+  gap:10px;width:100%;
+}
+.chip{
+  background:#FEFCF7;
+  border:1px solid rgba(180,140,60,.2);
+  color:rgba(107,80,16,.6);
+  font-family:'Cinzel',serif;
+  font-size:clamp(.86rem,.9rem,.98rem);
+  padding:0 var(--sp-sm);
+  height:58px;
+  letter-spacing:.1em;text-transform:uppercase;
+  transition:all .28s;cursor:none;
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  text-align:center;
+}
+.chip:active{background:rgba(180,140,60,.1);border-color:var(--gold);}
+@media(hover:hover){
+  .chip:hover{background:rgba(180,140,60,.06);border-color:rgba(180,140,60,.4);color:var(--ink2);}
+}
+.chip.sel{
+  background:rgba(180,140,60,.1);border-color:var(--gold);color:var(--ink2);
+  box-shadow:0 2px 12px rgba(180,140,60,.15);
+}
+.chip:last-child:nth-child(2n+1){grid-column:1/-1;}
+
+/* ── RECIPIENT CARDS ── */
+.rcards{
+  display:flex;gap:10px;justify-content:center;
+  width:100%;margin-bottom:var(--sp-lg);
+}
+.rcard{
+  flex:1;max-width:115px;
+  background:#FEFCF7;
+  border:1px solid rgba(180,140,60,.18);
+  padding:var(--sp-md) var(--sp-sm) var(--sp-sm);
+  text-align:center;
+  transition:all .3s;position:relative;overflow:hidden;cursor:none;
+  min-height:96px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.rcard::before{
+  content:'';position:absolute;top:0;right:0;bottom:0;left:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(180,140,60,.08),transparent 70%);
+  opacity:0;transition:opacity .3s;
+}
+.rcard::after{
+  content:'';position:absolute;bottom:0;left:0;width:100%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  transform:scaleX(0);transition:transform .3s;
+}
+.rcard:active{transform:scale(.97);}
+.rcard.sel::before{opacity:1;}
+.rcard.sel::after{transform:scaleX(1);}
+.rcard.sel{
+  background:rgba(180,140,60,.07);
+  border-color:rgba(180,140,60,.55);
+  box-shadow:0 4px 20px rgba(180,140,60,.14);
+}
+@media(hover:hover){.rcard:hover{transform:translateY(-4px);}.rcard:hover::before{opacity:1;}.rcard:hover::after{transform:scaleX(1);}}
+.ri{font-size:clamp(1.8rem,6vw,2.3rem);margin-bottom:8px;display:block;}
+.rn{font-family:'Cinzel',serif;font-size:.7rem;color:rgba(107,80,16,.5);letter-spacing:.14em;text-transform:uppercase;}
+.rcard.sel .rn{color:var(--gold3);}
+
+/* ── ENERGY BUTTONS ── */
+.energy-lbl{
+  font-family:'Cinzel',serif;font-size:.72rem;
+  color:rgba(107,80,16,.5);letter-spacing:.24em;text-transform:uppercase;
+  text-align:center;margin-bottom:var(--sp-sm);
+}
+.gbts{
+  display:flex;gap:8px;justify-content:center;
+  width:100%;margin-bottom:var(--sp-lg);
+}
+.gbt{
+  flex:1;
+  background:#FEFCF7;
+  border:1px solid rgba(180,140,60,.2);
+  color:rgba(107,80,16,.5);
+  font-family:'Cinzel',serif;
+  font-size:clamp(.68rem,.72rem,.8rem);
+  height:52px;
+  letter-spacing:.12em;text-transform:uppercase;
+  transition:all .28s;cursor:none;
+}
+.gbt:active{background:rgba(180,140,60,.1);}
+.gbt.sel{
+  background:rgba(180,140,60,.08);border-color:var(--gold);color:var(--ink2);
+  box-shadow:0 2px 12px rgba(180,140,60,.14);
+}
+@media(hover:hover){.gbt:hover{background:rgba(180,140,60,.06);border-color:rgba(180,140,60,.45);color:var(--ink2);}}
+
+/* ── PAGE ENTRY ANIMATIONS ── */
+@keyframes pg-rise{from{opacity:0;transform:translateY(26px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pg-fall{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pg-scale{from{opacity:0;transform:scale(.88);}to{opacity:1;transform:scale(1);}}
+@keyframes pg-rule-grow{from{transform:scaleX(0);opacity:0;}to{transform:scaleX(1);opacity:1;}}
+
+/* Only animate children AFTER pg-enter is added via JS */
+.pg-enter .anim-1{animation:pg-rise .55s cubic-bezier(.25,.8,.25,1) .05s both;}
+.pg-enter .anim-2{animation:pg-rise .55s cubic-bezier(.25,.8,.25,1) .14s both;}
+.pg-enter .anim-3{animation:pg-rise .55s cubic-bezier(.25,.8,.25,1) .23s both;}
+.pg-enter .anim-4{animation:pg-rise .55s cubic-bezier(.25,.8,.25,1) .32s both;}
+.pg-enter .anim-5{animation:pg-rise .55s cubic-bezier(.25,.8,.25,1) .41s both;}
+.pg-enter .anim-6{animation:pg-rise .55s cubic-bezier(.25,.8,.25,1) .50s both;}
+.pg-enter .anim-title{animation:pg-fall .6s cubic-bezier(.17,.67,.3,1.08) .06s both;}
+.pg-enter .anim-hero{animation:pg-scale .7s cubic-bezier(.17,.67,.3,1.12) 0s both;}
+.pg-enter .anim-rule{transform-origin:center;animation:pg-rule-grow .5s ease .18s both;}
+
+/* Bead reveal */
+.brc-num{font-family:'Cinzel',serif;font-size:.7rem;color:rgba(107,80,16,.4);letter-spacing:.32em;text-transform:uppercase;margin-bottom:var(--sp-xs);}
+.brc-name{
+  font-family:'Cinzel Decorative',cursive;
+  font-size:clamp(1.4rem,5.5vw,1.85rem);
+  color:transparent;
+  background:linear-gradient(155deg,#1A1208,var(--ink2),var(--gold3));
+  -webkit-background-clip:text;background-clip:text;
+  margin-bottom:5px;
+  filter:none;
+  line-height:1.15;
+}
+.brc-cn{font-family:'Cinzel',serif;font-size:.74rem;color:rgba(107,80,16,.4);letter-spacing:.22em;margin-bottom:var(--sp-sm);}
+.brc-why{
+  font-family:'EB Garamond',serif;
+  font-size:clamp(1.08rem,3.5vw,1.18rem);
+  color:rgba(60,42,12,.65);
+  line-height:1.78;margin-bottom:var(--sp-sm);
+  font-style:italic;padding:0 4px;
+}
+.brd-row{display:flex;gap:7px;justify-content:center;margin-bottom:var(--sp-sm);}
+.brd{width:7px;height:7px;border-radius:50%;background:rgba(180,140,60,.15);transition:all .3s;}
+.brd.d{background:var(--gold);}
+.brd.c{background:var(--gold3);box-shadow:0 0 6px rgba(107,80,16,.3);animation:bp .9s ease-in-out infinite alternate;}
+@keyframes bp{from{transform:scale(1);}to{transform:scale(1.7);}}
+.brc-tap{font-family:'Cinzel',serif;font-size:.64rem;color:rgba(107,80,16,.3);letter-spacing:.22em;text-transform:uppercase;animation:blk 1.8s ease-in-out infinite;}
+@keyframes blk{0%,100%{opacity:.1;}50%{opacity:.7;}}
+
+/* Result page bigger text */
+.res-title{
+  font-family:'Cinzel Decorative',cursive;
+  font-size:clamp(1.3rem,5vw,1.95rem);
+  color:transparent;
+  background:linear-gradient(155deg,#1A1208,var(--ink2),var(--gold3));
+  -webkit-background-clip:text;background-clip:text;
+  text-align:center;margin-bottom:6px;
+  opacity:0;animation:fu .9s ease .3s forwards;
+  filter:none;
+  line-height:1.2;padding:0 var(--sp-sm);
+}
+.res-sub{
+  font-family:'Cinzel',serif;font-size:.72rem;
+  color:rgba(107,80,16,.4);text-align:center;
+  letter-spacing:.22em;text-transform:uppercase;
+  opacity:0;animation:fu .9s ease .6s forwards;
+  margin-bottom:var(--sp-sm);
+}
+.fate-t{
+  font-family:'Cinzel Decorative',cursive;
+  font-size:clamp(.92rem,2.8vw,1.05rem);
+  color:transparent;
+  background:linear-gradient(155deg,#1A1208,var(--ink2),var(--gold3));
+  -webkit-background-clip:text;background-clip:text;
+  text-align:center;margin-bottom:var(--sp-md);text-transform:uppercase;
+}
+.fi-val{font-family:'EB Garamond',serif;font-size:1.18rem;color:var(--ink);font-weight:500;}
+.fate-read{
+  font-family:'EB Garamond',serif;
+  font-size:clamp(1.05rem,3.5vw,1.15rem);
+  line-height:1.9;color:rgba(60,42,12,.7);
+  border-top:1px solid rgba(180,140,60,.1);
+  padding-top:var(--sp-sm);margin-top:4px;
+  display:flex;flex-direction:column;gap:0;
+}
+.fate-read em{color:var(--ink);font-style:normal;font-weight:500;}
+.bc-nm{font-family:'Cinzel',serif;font-size:.72rem;color:var(--ink2);letter-spacing:.1em;margin-bottom:2px;text-transform:uppercase;}
+.bc-ds{font-family:'EB Garamond',serif;font-size:.96rem;color:rgba(60,42,12,.6);line-height:1.5;}
+.moon-hint{
+  font-family:'EB Garamond',serif;font-size:1.05rem;font-style:italic;
+  color:rgba(107,80,16,.35);text-align:center;
+  margin-top:var(--sp-md);letter-spacing:.05em;
+  opacity:0;animation:fu 1s ease 2s forwards;padding:0 var(--sp-sm);
+}
+.btn-sm{
+  background:#FEFCF7;
+  border:1px solid rgba(180,140,60,.35);
+  color:var(--ink2);font-family:'Cinzel',serif;
+  font-size:.72rem;letter-spacing:.16em;
+  padding:0 var(--sp-md);
+  height:52px;
+  text-transform:uppercase;transition:all .3s;cursor:none;
+  display:flex;align-items:center;justify-content:center;
+}
+.btn-sm:active{background:rgba(180,140,60,.1);}
+
+/* ── LIVE TEXT & ELEMENT ANIMATIONS ── */
+@keyframes gold-shimmer{
+  0%{background-position:200% center;}
+  100%{background-position:-200% center;}
+}
+.h1{background-size:200% auto;animation:gold-shimmer 5s linear infinite;}
+.pg-t{background-size:200% auto;animation:gold-shimmer 5s linear infinite;}
+.brc-name{background-size:200% auto;animation:gold-shimmer 3.5s linear infinite;}
+.res-title{background-size:200% auto;animation:fu .9s ease .3s forwards,gold-shimmer 5s linear 1.2s infinite;}
+
+@keyframes hero-float{0%,100%{transform:translateY(0);}50%{transform:translateY(-9px);}}
+.hero-wrap{animation:hero-float 5s ease-in-out infinite;}
+
+@keyframes sd-pulse{0%,100%{box-shadow:0 0 5px rgba(180,140,60,.3);}50%{box-shadow:0 0 12px rgba(180,140,60,.5);}}
+.sd.act{animation:sd-pulse 2s ease-in-out infinite;}
+
+.chip{position:relative;overflow:hidden;}
+.chip::after{content:'';position:absolute;top:0;right:0;bottom:0;left:0;background:radial-gradient(circle at 50% 50%,rgba(212,168,67,.16) 0%,transparent 65%);opacity:0;transition:opacity .3s;pointer-events:none;}
+.chip.sel::after{opacity:1;}
+
+@keyframes card-breathe{0%,100%{box-shadow:0 4px 16px rgba(180,140,60,.12);}50%{box-shadow:0 6px 24px rgba(180,140,60,.2);}}
+.rcard.sel{animation:card-breathe 2.5s ease-in-out infinite;}
+
+@keyframes btn-idle{0%,100%{box-shadow:0 2px 10px rgba(180,140,60,.1),inset 0 1px 0 rgba(255,255,255,.9);}50%{box-shadow:0 4px 18px rgba(180,140,60,.18),inset 0 1px 0 rgba(255,255,255,.95);}}
+.btn{animation:btn-idle 3s ease-in-out infinite;}
+.btn:active{animation:none;}
+
+@keyframes rule-glow{0%,100%{opacity:.5;}50%{opacity:.85;filter:drop-shadow(0 0 3px rgba(180,140,60,.2));}}
+.rule,.pg-rule{animation:rule-glow 3.5s ease-in-out infinite;}
+
+@keyframes cr-bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+.cr:nth-child(1) span:first-child{animation:cr-bob 3s ease-in-out .0s infinite;}
+.cr:nth-child(2) span:first-child{animation:cr-bob 3s ease-in-out .35s infinite;}
+.cr:nth-child(3) span:first-child{animation:cr-bob 3s ease-in-out .7s infinite;}
+.cr:nth-child(4) span:first-child{animation:cr-bob 3s ease-in-out 1.05s infinite;}
+.cr:nth-child(5) span:first-child{animation:cr-bob 3s ease-in-out 1.4s infinite;}
+
+@keyframes fate-enter{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+.fate-sec{animation:fate-enter 1s ease 1.1s both;}
+
+@keyframes gbt-glow{0%,100%{border-color:var(--gold3);}50%{border-color:var(--gold);box-shadow:0 2px 12px rgba(180,140,60,.18);}}
+.gbt.sel{animation:gbt-glow 2s ease-in-out infinite;}
+
+#ritual-screen{
+  position:fixed;top:0;right:0;bottom:0;left:0;z-index:80;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .9s;
+  background:radial-gradient(ellipse at 50% 40%, #FAF5E8 0%, #FDFAF5 70%);
+}
+#ritual-screen.on{opacity:1;pointer-events:all;}
+#rc{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none;}
+.rt-title{
+  font-family:'Cinzel Decorative',cursive;
+  font-size:clamp(1rem,4vw,1.5rem);
+  color:var(--ink2);text-align:center;letter-spacing:.08em;
+  margin-bottom:var(--sp-xs);position:relative;z-index:2;
+  text-shadow:none;
+  padding:0 var(--sp-md);
+}
+.rt-desc{
+  font-family:'EB Garamond',serif;font-size:1.05rem;
+  color:rgba(26,12,2,.75);text-align:center;max-width:320px;
+  line-height:1.8;margin-bottom:var(--sp-xs);
+  position:relative;z-index:2;font-style:italic;
+  padding:0 var(--sp-md);
+}
+.rt-trig{
+  font-size:2rem;color:var(--gold3);text-align:center;
+  margin-bottom:4px;position:relative;z-index:2;
+  filter:none;
+}
+.rt-tname{
+  font-family:'Cinzel',serif;font-size:.72rem;color:rgba(42,28,8,.70);
+  letter-spacing:.20em;text-transform:uppercase;
+  text-align:center;margin-bottom:var(--sp-lg);position:relative;z-index:2;
+}
+.rt-inst{
+  font-family:'Cinzel',serif;font-size:.82rem;
+  color:rgba(42,28,8,.7);letter-spacing:.18em;text-transform:uppercase;
+  text-align:center;position:relative;z-index:2;
+  animation:ptxt 2.5s ease-in-out infinite;
+  margin-top:var(--sp-sm);
+  background:rgba(253,250,245,.8);padding:8px 20px;
+}
+@keyframes ptxt{0%,100%{opacity:.25;}50%{opacity:.9;}}
+.rpt{position:absolute;width:68px;height:68px;z-index:10;cursor:pointer;}
+.rpt-ring2{
+  position:absolute;top:-10px;right:-10px;bottom:-10px;left:-10px;border-radius:50%;
+  border:1px solid rgba(184,134,11,0.25);
+  animation:rp-idle 2.8s ease-in-out infinite reverse;
+}
+.rpt-sublbl{
+  position:absolute;top:52px;left:50%;transform:translateX(-50%);
+  font-family:'Cinzel',serif;font-size:.5rem;
+  color:rgba(107,80,16,.5);letter-spacing:.1em;
+  white-space:nowrap;
+}
+.rpt-ring{
+  position:absolute;top:0;right:0;bottom:0;left:0;border-radius:50%;
+  border:1.5px solid var(--gold3);
+  animation:rp-idle 2.2s ease-in-out infinite;
+}
+.rpt-dot{
+  width:10px;height:10px;border-radius:50%;background:var(--gold3);
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  box-shadow:0 0 8px rgba(107,80,16,.3);
+}
+.rpt-lbl{
+  position:absolute;top:-26px;left:50%;transform:translateX(-50%);
+  font-family:'Cinzel',serif;font-size:.68rem;color:var(--ink);font-weight:600;
+  letter-spacing:.10em;white-space:nowrap;
+  background:rgba(253,250,245,.85);padding:2px 8px;border-radius:3px;
+}
+@keyframes rp-idle{0%,100%{transform:scale(1);opacity:.7;}50%{transform:scale(1.3);opacity:1;}}
+.rpt.lit .rpt-ring{border-color:var(--gold2);animation:rp-lit .5s ease-out forwards;}
+.rpt.lit .rpt-dot{background:var(--gold2);box-shadow:0 0 22px var(--gold2),0 0 44px rgba(245,216,130,.3);}
+@keyframes rp-lit{0%{transform:scale(1.4);}60%{transform:scale(2);opacity:.6;}100%{transform:scale(1.1);opacity:1;}}
+.rpt-count{
+  position:relative;z-index:2;margin-top:var(--sp-md);
+  display:flex;gap:10px;justify-content:center;
+}
+.rpt-pip{width:7px;height:7px;border-radius:50%;background:rgba(180,140,60,.2);transition:all .4s;}
+.rpt-pip.lit{background:var(--gold3);box-shadow:none;}
+
+/* ── LOADING (P4) ── */
+#p4{
+  justify-content:flex-start;
+  padding-top:calc(var(--sat) + var(--sp-md));
+  padding-bottom:calc(var(--sab) + var(--sp-md));
+}
+#p4.show-result{justify-content:flex-start;}
+#p4 .pc{max-width:480px;}
+.lzone{
+  text-align:center;width:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:70vh;
+  padding:var(--sp-lg) 0;
+}
+#load-orb-wrap{position:relative;width:160px;height:160px;margin:0 auto var(--sp-md);}
+#load-orb-cv{width:160px;height:160px;}
+.lzone-title{
+  font-family:'Cinzel Decorative',cursive;
+  font-size:clamp(1.15rem,4vw,1.4rem);
+  color:var(--ink);letter-spacing:.06em;margin-bottom:var(--sp-xs);
+  text-align:center;
+}
+.ptrack{
+  width:100%;max-width:260px;height:2px;
+  background:rgba(180,140,60,.08);
+  margin:var(--sp-sm) auto;overflow:hidden;border-radius:1px;
+}
+.pfill{
+  height:100%;
+  background:linear-gradient(90deg,rgba(107,80,16,.6),var(--gold),rgba(180,140,60,.8));
+  width:0%;transition:width .7s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 0 8px rgba(180,140,60,.3);
+}
+.lstep{
+  font-family:'Cinzel',serif;font-size:.78rem;
+  color:rgba(42,28,8,.6);letter-spacing:.18em;text-transform:uppercase;
+  height:22px;transition:opacity .4s;margin-bottom:var(--sp-sm);
+  text-align:center;
+}
+
+/* ── BEAD REVEAL OVERLAY ── */
+#bro{
+  position:fixed;top:0;right:0;bottom:0;left:0;
+  background:rgba(253,250,245,.96);
+  z-index:100;
+  display:flex;align-items:center;justify-content:center;
+  padding:var(--sp-sm) var(--sp-md);
+  opacity:0;pointer-events:none;
+  transition:opacity .5s;
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+}
+#bro.on{opacity:1;pointer-events:all;}
+
+/* Particle canvas behind card */
+#bro-particles{
+  position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:0;
+}
+
+/* The grand reveal card */
+.brc{
+  width:100%;max-width:420px;
+  position:relative;z-index:2;
+  text-align:center;
+  border:1px solid rgba(180,140,60,.35);
+  outline:1px solid rgba(180,140,60,.08);
+  outline-offset:6px;
+  background:linear-gradient(170deg, #FEFCF7 0%, #FDFAF2 50%, #FAF7EC 100%);
+  padding:var(--sp-lg) var(--sp-md) var(--sp-md);
+  box-shadow:
+    0 0 0 1px rgba(180,140,60,.06),
+    0 20px 60px rgba(180,140,60,.12),
+    0 4px 20px rgba(180,140,60,.08),
+    inset 0 1px 0 rgba(255,255,255,.9);
+}
+
+/* Animated corner brackets */
+.brc::before,.brc::after{
+  content:'';position:absolute;
+  width:28px;height:28px;
+  border-color:var(--gold);border-style:solid;
+  opacity:.55;
+  transition:width .4s,height .4s;
+}
+.brc::before{top:8px;left:8px;border-width:1.5px 0 0 1.5px;}
+.brc::after{bottom:8px;right:8px;border-width:0 1.5px 1.5px 0;}
+
+/* Inner corner accents */
+.brc-inner{position:absolute;top:0;right:0;bottom:0;left:0;pointer-events:none;overflow:hidden;}
+.brc-inner::before,.brc-inner::after{
+  content:'';position:absolute;
+  width:16px;height:16px;
+  border-color:rgba(180,140,60,.22);border-style:solid;
+}
+.brc-inner::before{top:24px;right:24px;border-width:1px 1px 0 0;}
+.brc-inner::after{bottom:24px;left:24px;border-width:0 0 1px 1px;}
+
+/* Top shimmer line */
+.brc-shine{
+  position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent 0%,rgba(180,140,60,.3) 30%,rgba(200,160,80,.6) 50%,rgba(180,140,60,.3) 70%,transparent 100%);
+  animation:shine-sweep 3s ease-in-out infinite;
+}
+@keyframes shine-sweep{
+  0%,100%{opacity:.4;background-position:0% 50%;}
+  50%{opacity:1;background-position:100% 50%;}
+}
+
+/* Gem canvas — larger */
+.gem-wrap{
+  width:180px;height:180px;
+  margin:0 auto var(--sp-md);
+  position:relative;
+}
+.gem-wrap::before{
+  content:'';
+  position:absolute;top:-20px;right:-20px;bottom:-20px;left:-20px;
+  border-radius:50%;
+  background:radial-gradient(circle, var(--glow-col,rgba(212,168,67,.2)) 0%, transparent 70%);
+  animation:gem-halo 2.5s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes gem-halo{
+  0%,100%{transform:scale(.9);opacity:.6;}
+  50%{transform:scale(1.08);opacity:1;}
+}
+#gem-cv{
+  width:180px;height:180px;
+  display:block;
+  border-radius:50%;
+  background:#F8F4EE;
+  filter:drop-shadow(0 2px 18px var(--glow-col,rgba(212,168,67,.35)));
+}
+
+/* Stone number badge */
+.brc-num{
+  font-family:'Cinzel',serif;
+  font-size:.68rem;color:rgba(212,168,67,.38);
+  letter-spacing:.36em;text-transform:uppercase;
+  margin-bottom:var(--sp-sm);
+}
+
+/* Stone name — huge gradient shimmer */
+.brc-name{
+  font-family:'Cinzel Decorative',cursive;
+  font-size:clamp(1.5rem,6vw,2rem);
+  color:transparent;
+  background:linear-gradient(135deg,#fff8e0 0%,var(--gold2) 30%,var(--gold) 55%,#ffe090 75%,var(--gold2) 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;background-clip:text;
+  animation:gold-shimmer 2.8s linear infinite;
+  margin-bottom:6px;
+  filter:drop-shadow(0 0 22px rgba(212,168,67,.45));
+  line-height:1.15;
+}
+
+/* Chinese name + meaning */
+.brc-cn{
+  font-family:'Cinzel',serif;
+  font-size:.76rem;
+  color:rgba(212,168,67,.38);
+  letter-spacing:.24em;
+  margin-bottom:var(--sp-md);
+}
+
+/* Divider ornament */
+.brc-div{
+  display:flex;align-items:center;gap:10px;
+  margin:0 auto var(--sp-md);
+  width:min(260px,80%);
+}
+.brc-div-line{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(212,168,67,.35));}
+.brc-div-line:last-child{background:linear-gradient(90deg,rgba(212,168,67,.35),transparent);}
+.brc-div-gem{font-size:.7rem;color:var(--gold);opacity:.7;}
+
+/* Why text */
+.brc-why{
+  font-family:'EB Garamond',serif;
+  font-size:clamp(1.05rem,3.5vw,1.18rem);
+  color:rgba(225,205,150,.72);
+  line-height:1.82;
+  margin-bottom:var(--sp-md);
+  font-style:italic;
+  padding:0 8px;
+}
+
+/* Progress dots */
+.brd-row{display:flex;gap:8px;justify-content:center;margin-bottom:var(--sp-sm);}
+.brd{
+  width:8px;height:8px;border-radius:50%;
+  background:rgba(212,168,67,.1);
+  border:1px solid rgba(212,168,67,.15);
+  transition:all .4s;
+}
+.brd.d{
+  background:var(--gold);
+  border-color:var(--gold);
+  box-shadow:0 0 8px rgba(212,168,67,.5);
+}
+.brd.c{
+  background:var(--gold2);
+  border-color:var(--gold2);
+  box-shadow:0 0 14px rgba(245,216,130,.8);
+  animation:bp .85s ease-in-out infinite alternate;
+}
+@keyframes bp{from{transform:scale(1);}to{transform:scale(1.8);}}
+
+.brc-tap{
+  font-family:'Cinzel',serif;font-size:.64rem;
+  color:rgba(212,168,67,.25);letter-spacing:.22em;text-transform:uppercase;
+  animation:blk 1.8s ease-in-out infinite;
+}
+@keyframes blk{0%,100%{opacity:.1;}50%{opacity:.65;}}
+
+/* ── VICTORY ── */
+#vs{position:fixed;top:0;right:0;bottom:0;left:0;z-index:200;pointer-events:none;opacity:0;}
+#vs.on{animation:vsq 4.2s ease-out forwards;}
+@keyframes vsq{0%{opacity:0;}8%{opacity:1;}80%{opacity:1;}100%{opacity:0;}}
+#vs-cv{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;}
+.vs-msg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;z-index:2;width:90vw;}
+.vs-big{
+  font-family:'Cinzel Decorative',cursive;
+  font-size:clamp(1.6rem,6vw,2.8rem);
+  color:var(--gold2);
+  text-shadow:0 0 40px var(--gold),0 0 80px rgba(212,168,67,.35);
+  letter-spacing:.07em;margin-bottom:8px;
+  animation:vsp .7s cubic-bezier(.17,.67,.3,1.4) .35s both;
+}
+.vs-sm{
+  font-family:'Cinzel',serif;font-size:clamp(.65rem,.8rem,.88rem);
+  color:var(--jade2);letter-spacing:.28em;text-transform:uppercase;
+  animation:vsp .7s cubic-bezier(.17,.67,.3,1.4) .7s both;
+}
+@keyframes vsp{from{transform:scale(0) rotate(-12deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
+
+/* ── RESULT PAGE ── */
+#res-area{display:none;width:100%;}
+@keyframes fu{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+/* Bracelet SVG — responsive */
+.bwrap{width:min(300px, 88vw);height:min(300px, 88vw);margin:var(--sp-md) auto;}
+#bsvg{width:100%;height:100%;filter:drop-shadow(0 0 24px rgba(212,168,67,.22));}
+/* Bead tooltip */
+.bead-tip{position:fixed;background:rgba(3,1,10,.98);border:1px solid rgba(212,168,67,.35);padding:12px 16px;font-family:'EB Garamond',serif;font-size:.9rem;color:var(--text);line-height:1.65;text-align:center;max-width:min(180px,80vw);pointer-events:none;opacity:0;transition:opacity .2s;z-index:60;}
+.bead-tip.on{opacity:1;}
+.bt-n{font-family:'Cinzel',serif;font-size:.74rem;color:var(--gold);letter-spacing:.1em;margin-bottom:4px;text-transform:uppercase;}
+/* Fate section */
+.fate-sec{width:100%;margin-top:var(--sp-lg);border:1px solid rgba(180,140,60,.15);background:linear-gradient(145deg,rgba(254,252,247,.98),rgba(250,247,238,.99));padding:var(--sp-lg) var(--sp-md);position:relative;opacity:0;animation:fu 1s ease 1.1s forwards;box-shadow:0 4px 24px rgba(180,140,60,.08);}
+.fate-sec::before{content:'✦';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#FDFAF5;padding:0 10px;color:var(--gold);font-size:12px;}
+.fate-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:var(--sp-md);}
+.fi-box{text-align:center;padding:var(--sp-sm) var(--sp-xs);border:1px solid rgba(180,140,60,.1);background:rgba(255,255,255,.5);}
+.fi-ic{font-size:1.5rem;margin-bottom:5px;display:block;}
+.fi-lbl{font-family:'Cinzel',serif;font-size:.58rem;color:var(--dim2);letter-spacing:.2em;text-transform:uppercase;margin-bottom:3px;}
+/* Bead cards grid */
+.bgrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:var(--sp-md);opacity:0;animation:fu 1s ease 1.5s forwards;}
+@media(min-width:480px){.bgrid{grid-template-columns:1fr 1fr;}}
+/* .bc replaced by enhanced version below */
+.bc-dot{width:30px;height:30px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(255,255,255,.1);}
+.act-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:var(--sp-lg);opacity:0;animation:fu 1s ease 2.2s forwards;}
+
+/* ── PAGE THEME TINT ── */
+#page-tint{
+  position:fixed;top:0;right:0;bottom:0;left:0;z-index:1;pointer-events:none;
+  transition:background 2s cubic-bezier(.4,0,.2,1);
+  background:radial-gradient(ellipse 85% 65% at 50% 25%, rgba(220,180,80,.07) 0%, transparent 70%);
+}
+body.theme-p1::before{background:
+  radial-gradient(ellipse 75% 55% at 18% 12%, rgba(220,180,80,.07) 0%, transparent 60%),
+  radial-gradient(ellipse 55% 45% at 82% 80%, rgba(200,160,60,.05) 0%, transparent 55%),
+  linear-gradient(170deg, #FDFAF5 0%, #FEFCF7 50%, #FAF7EE 100%);}
+body.theme-p2::before{background:
+  radial-gradient(ellipse 70% 50% at 22% 15%, rgba(180,140,60,.06) 0%, transparent 60%),
+  radial-gradient(ellipse 55% 45% at 78% 78%, rgba(160,120,50,.04) 0%, transparent 55%),
+  linear-gradient(170deg, #FDFAF5 0%, #FEFCF7 50%, #FAF7EE 100%);}
+body.theme-p2b::before{background:
+  radial-gradient(ellipse 65% 50% at 28% 18%, rgba(160,120,50,.06) 0%, transparent 60%),
+  radial-gradient(ellipse 55% 45% at 72% 72%, rgba(140,110,45,.04) 0%, transparent 55%),
+  linear-gradient(170deg, #FDFAF5 0%, #FEFCF7 50%, #FAF7EE 100%);}
+body.theme-p3::before{background:
+  radial-gradient(ellipse 65% 50% at 32% 22%, rgba(140,110,45,.05) 0%, transparent 60%),
+  radial-gradient(ellipse 50% 42%, rgba(120,95,40,.04) 0%, transparent 55%),
+  linear-gradient(170deg, #FDFAF5 0%, #FEFCF7 50%, #FAF7EE 100%);}
+body.theme-p4::before{background:
+  radial-gradient(ellipse 70% 55% at 50% 18%, rgba(200,168,60,.08) 0%, transparent 60%),
+  radial-gradient(ellipse 50% 42% at 50% 82%, rgba(180,148,50,.05) 0%, transparent 55%),
+  linear-gradient(170deg, #FDFAF5 0%, #FEFCF7 50%, #FAF7EE 100%);}
+
+/* ── FLOATING PARTICLES ── */
+.fp{position:fixed;pointer-events:none;z-index:2;opacity:0;animation:fpup var(--d) ease-in var(--dl) infinite;}
+@keyframes fpup{0%{opacity:0;transform:translateY(0) rotate(0deg);}15%{opacity:.4;}85%{opacity:.1;}100%{opacity:0;transform:translateY(-115vh) rotate(360deg);}}
+
+/* ── TAP RIPPLE ── */
+.ripple{
+  position:fixed;pointer-events:none;border-radius:50%;
+  border:1.5px solid rgba(139,105,20,.45);
+  z-index:9997;transform:translate(-50%,-50%);
+  animation:rp-out .65s ease-out forwards;
+}
+@keyframes rp-out{from{width:8px;height:8px;opacity:.8;}to{width:80px;height:80px;opacity:0;}}
+
+
+
+
+
+
+/* ── FATE SECTIONS (八卦命理) ── */
+.fate-section{
+  margin-bottom:var(--sp-md);
+  padding:var(--sp-sm) var(--sp-md);
+  border-left:3px solid rgba(180,140,60,.2);
+  background:rgba(255,255,255,.5);
+}
+.fate-section p{
+  font-family:'EB Garamond',serif;
+  font-size:clamp(1.05rem,3.5vw,1.18rem);
+  line-height:1.9;color:rgba(20,10,2,.80);
+  font-style:italic;
+}
+.fate-section p em{
+  color:var(--ink2);font-style:normal;font-weight:600;
+}
+.fate-sec-title{
+  font-family:'Cinzel',serif;font-size:.72rem;
+  letter-spacing:.18em;text-transform:uppercase;
+  margin-bottom:var(--sp-xs);color:var(--gold3);
+}
+.fate-positive{color:rgba(46,125,50,.8) !important;}
+.fate-caution{color:rgba(184,96,0,.8) !important;}
+.fate-danger{color:rgba(192,57,43,.85) !important;}
+.fate-purple{color:rgba(94,50,130,.8) !important;}
+
+.fate-sec-weakness{border-left-color:rgba(184,96,0,.3);background:rgba(255,248,235,.6);}
+.fate-sec-tribulation{border-left-color:rgba(192,57,43,.4);background:rgba(255,240,238,.6);}
+.fate-sec-trigram{border-left-color:rgba(94,50,130,.3);background:rgba(245,238,255,.5);}
+.fate-sec-warning{border-left-color:rgba(192,57,43,.35);background:rgba(255,240,238,.5);}
+.fate-sec-strength{border-left-color:rgba(46,125,50,.3);background:rgba(238,248,240,.6);}
+/* ── BEAD CARD (enhanced) ── */
+.bc{
+  background:rgba(255,255,255,.7);
+  border:1px solid rgba(180,140,60,.12);
+  padding:var(--sp-sm);
+  display:flex;align-items:center;gap:var(--sp-sm);
+  cursor:pointer;transition:all .3s;
+  position:relative;overflow:hidden;
+}
+.bc:active,.bc.bc-active{
+  background:rgba(180,140,60,.07);
+  border-color:rgba(180,140,60,.35);
+}
+.bc::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:linear-gradient(180deg,var(--gold3),var(--gold));
+  opacity:0;transition:opacity .3s;
+}
+.bc.bc-active::before{opacity:1;}
+
+/* 3D gem preview in card */
+.bc-gem-preview{
+  width:44px;height:44px;border-radius:50%;flex-shrink:0;
+  background:radial-gradient(circle at 35% 30%,var(--gg),var(--gc));
+  box-shadow:0 3px 12px var(--gg,rgba(184,134,11,.3));
+  position:relative;overflow:hidden;
+  transition:transform .25s;
+}
+.bc:hover .bc-gem-preview,.bc.bc-active .bc-gem-preview{transform:scale(1.1);}
+.bc-gem-inner{
+  position:absolute;top:0;right:0;bottom:0;left:0;border-radius:50%;
+  background:radial-gradient(circle at 28% 25%,rgba(255,255,255,.45),transparent 60%);
+}
+.bc-gem-shine{
+  position:absolute;top:18%;left:22%;width:28%;height:18%;border-radius:50%;
+  background:rgba(255,255,255,.5);
+}
+.bc-text{flex:1;min-width:0;}
+.bc-nm{font-family:'Cinzel',serif;font-size:.75rem;color:var(--ink2);letter-spacing:.08em;margin-bottom:3px;text-transform:uppercase;font-weight:600;}
+.bc-ds{font-family:'EB Garamond',serif;font-size:.95rem;color:rgba(42,28,8,.68);line-height:1.45;}
+.bc-why-row{margin-top:6px;padding-top:6px;border-top:1px solid rgba(180,140,60,.1);}
+.bc-why-text{font-family:'EB Garamond',serif;font-size:.88rem;color:rgba(60,42,12,.75);font-style:italic;line-height:1.5;}
+.bc-drop-btn{
+  font-size:1.2rem;color:rgba(139,105,20,.35);
+  transition:transform .3s,color .3s;flex-shrink:0;
+}
+.bc:hover .bc-drop-btn{color:rgba(139,105,20,.7);transform:rotate(180deg);}
+.bc.bc-active .bc-drop-btn{color:var(--gold);transform:rotate(360deg);}
+/* ── Loading Bagua Row ── */
+.load-bagua-row{
+  font-family:serif;font-size:1.1rem;
+  color:rgba(139,105,20,.3);letter-spacing:.4em;
+  text-align:center;margin-bottom:var(--sp-sm);
+  animation:ptxt 3s ease-in-out infinite;
+}
+/* ── TAP GESTURE HINT ── */
+.brc-tap-wrap{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  margin-top:var(--sp-xs);
+}
+.brc-gesture{
+  position:relative;
+  animation:gesture-tap 2.2s ease-in-out infinite;
+}
+.brc-tap{
+  font-family:'Cinzel',serif;font-size:.78rem;
+  color:rgba(107,80,16,.55);
+  letter-spacing:.14em;text-align:center;
+  animation:ptxt 2s ease-in-out infinite;
+}
+.tap-ring{
+  transform-origin:30px 52px;
+  opacity:0;
+}
+.r1{animation:tap-ripple 2.2s ease-out .1s infinite;}
+.r2{animation:tap-ripple 2.2s ease-out .35s infinite;}
+.r3{animation:tap-ripple 2.2s ease-out .6s infinite;}
+@keyframes gesture-tap{
+  0%,100%{transform:translateY(0) scale(1);}
+  40%{transform:translateY(6px) scale(0.93);}
+  55%{transform:translateY(3px) scale(0.97);}
+}
+@keyframes tap-ripple{
+  0%{opacity:0;transform:scale(0.4);}
+  30%{opacity:1;}
+  80%{opacity:0;transform:scale(1.5);}
+  100%{opacity:0;transform:scale(1.8);}
+}
+/* ── SEAL STAMP ── */
+.seal-stamp{
+  margin:var(--sp-xs) auto var(--sp-sm);
+  opacity:.7;
+  display:flex;justify-content:center;
+}
+
+
+/* koi canvas animation via JS */
+/* ── WATER RIPPLE ── */
+#water-ripple{
+  position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:100%;
+  z-index:11;pointer-events:none;
+  opacity:0.32;
+  mix-blend-mode:screen;
+}
+/* ── TOP UTILITY BAR ── */
+#top-bar{
+  position:fixed;top:calc(var(--sat)+10px);right:12px;
+  z-index:500;display:flex;gap:8px;align-items:center;
+}
+#top-bar button{
+  background:#FEFCF7;
+  border:1px solid rgba(180,140,60,.25);
+  color:rgba(107,80,16,.6);
+  font-family:'Cinzel',serif;
+  font-size:.62rem;letter-spacing:.1em;
+  padding:5px 10px;height:32px;
+  cursor:pointer;transition:all .25s;
+  border-radius:2px;
+  box-shadow:0 1px 6px rgba(180,140,60,.1);
+}
+#top-bar button:hover{
+  background:rgba(180,140,60,.08);
+  border-color:rgba(180,140,60,.5);
+  color:var(--ink2);
+}
+#top-bar button.active{
+  background:rgba(180,140,60,.12);
+  border-color:var(--gold);
+  color:var(--ink2);
+}
+/* Share button in result */
+#btn-share{
+  background:#FEFCF7;
+  border:1px solid rgba(180,140,60,.35);
+  color:var(--ink2);
+  font-family:'Cinzel',serif;font-size:.7rem;
+  letter-spacing:.16em;padding:0 var(--sp-md);
+  height:48px;display:flex;align-items:center;
+  justify-content:center;gap:8px;
+  transition:all .25s;cursor:none;
+  box-shadow:0 2px 8px rgba(180,140,60,.1);
+}
+#btn-share:active{background:rgba(180,140,60,.1);}
+@media(hover:hover){#btn-share:hover{background:rgba(180,140,60,.08);border-color:var(--gold);}}
+/* Copy toast */
+#copy-toast{
+  position:fixed;bottom:calc(var(--sab)+24px);left:50%;transform:translateX(-50%);
+  background:rgba(26,18,8,.9);color:#F5EDD0;
+  font-family:'Cinzel',serif;font-size:.7rem;letter-spacing:.18em;
+  padding:10px 22px;border:1px solid rgba(180,140,60,.4);
+  opacity:0;pointer-events:none;transition:opacity .3s;
+  white-space:nowrap;border-radius:2px;z-index:9999;
+}
+#copy-toast.on{opacity:1;}
+
+/* ════════════════════════════════════════════════
+   GLOBAL CRYSTAL & BRACELET DESIGN ENHANCEMENT
+   ════════════════════════════════════════════════ */
+
+/* ── Crystal bead divider: horizontal bead string rule ── */
+.bead-rule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  margin: var(--sp-md) auto;
+  width: min(320px, 86vw);
+  position: relative;
+}
+.bead-rule::before, .bead-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(180,140,60,.35));
+}
+.bead-rule::after {
+  background: linear-gradient(270deg, transparent, rgba(180,140,60,.35));
+}
+.bead-rule-inner {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 0 8px;
+}
+/* Individual beads on the rule */
+.bdr-bead {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  box-shadow: inset -2px -1px 3px rgba(0,0,0,.18), inset 1px 1px 2px rgba(255,255,255,.6);
+  position: relative;
+  flex-shrink: 0;
+}
+.bdr-bead::after {
+  content: '';
+  position: absolute;
+  top: 1.5px; left: 2px;
+  width: 3px; height: 2px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.7);
+}
+.bdr-bead.b-gold   { background: radial-gradient(circle at 35% 28%, #FFE88A, #B8860B 70%, #6B4F06); }
+.bdr-bead.b-ameth  { background: radial-gradient(circle at 35% 28%, #E8D8FF, #8B44CC 70%, #4A1E80); }
+.bdr-bead.b-jade   { background: radial-gradient(circle at 35% 28%, #B8FFDD, #2E7D52 70%, #0F4020); }
+.bdr-bead.b-ruby   { background: radial-gradient(circle at 35% 28%, #FFB8B8, #C0392B 70%, #6B0A08); }
+.bdr-bead.b-aqua   { background: radial-gradient(circle at 35% 28%, #B8F0FF, #06ACE0 70%, #025A78); }
+.bdr-bead.b-citr   { background: radial-gradient(circle at 35% 28%, #FFF4B8, #D4A843 70%, #7A5810); }
+.bdr-bead.b-sm     { width: 5px; height: 5px; background: radial-gradient(circle at 35% 28%, #FFE088, #B8860B 70%); }
+/* thread line through beads */
+.bead-rule-inner::before {
+  content: '';
+  position: absolute;
+  left: 8px; right: 8px;
+  top: 50%;
+  height: 1px;
+  background: rgba(180,100,60,.22);
+  z-index: -1;
+}
+
+/* ── Crystal gem accent — floats beside section titles ── */
+.gem-accent {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 6px;
+}
+.gem-accent svg { display: block; }
+
+/* ── Page header ornament — thin bead string above title ── */
+.pg-bead-orn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+.pg-bead-orn .pb { 
+  width: 7px; height: 7px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255,240,180,.9), rgba(184,134,11,.8) 60%, rgba(100,70,5,.6));
+  box-shadow: 0 1px 3px rgba(0,0,0,.15);
+}
+.pg-bead-orn .pb-sm { width: 4px; height: 4px; opacity: .5; }
+.pg-bead-orn .pb-line {
+  width: 32px; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(184,134,11,.3), transparent);
+}
+
+/* ── Floating crystal corner accents ── */
+.crystal-corner {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+/* ── Step dots — upgrade to crystal beads ── */
+.sd {
+  width: 8px !important; height: 8px !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle at 38% 32%, rgba(255,248,200,.6), rgba(180,140,60,.15) 70%) !important;
+  border: 1px solid rgba(180,140,60,.22) !important;
+  box-shadow: none !important;
+  transition: all .4s !important;
+}
+.sd.done {
+  background: radial-gradient(circle at 35% 28%, #FFE8A0, #B8860B 65%, #6B4A06) !important;
+  border-color: rgba(184,134,11,.5) !important;
+  box-shadow: 0 0 5px rgba(184,134,11,.25) !important;
+}
+.sd.act {
+  background: radial-gradient(circle at 35% 28%, #FFF4C0, #D4A843 55%, #8B6014) !important;
+  border-color: rgba(212,168,67,.7) !important;
+  box-shadow: 0 0 9px rgba(184,134,11,.45), inset 0 1px 2px rgba(255,255,255,.6) !important;
+  width: 14px !important;
+  border-radius: 7px !important;
+}
+
+/* ── Wish chips — crystal capsule style ── */
+.chip {
+  position: relative;
+  overflow: hidden;
+}
+.chip::before {
+  content: '';
+  position: absolute;
+  top: 2px; left: 4px;
+  right: 50%;
+  height: 40%;
+  border-radius: 50%;
+  background: rgba(255,255,255,.22);
+  pointer-events: none;
+}
+
+/* ── Recipient cards — crystal frame ── */
+.rcard {
+  position: relative;
+  overflow: hidden;
+}
+.rcard::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 4px; right: 4px;
+  height: 30%;
+  background: linear-gradient(180deg, rgba(255,255,255,.12), transparent);
+  border-radius: 3px 3px 0 0;
+  pointer-events: none;
+}
+
+/* ── Energy buttons ── */
+.gbt {
+  position: relative;
+  overflow: hidden;
+}
+.gbt::before {
+  content: '';
+  position: absolute;
+  top: 2px; left: 6px; right: 6px;
+  height: 35%;
+  background: rgba(255,255,255,.10);
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+/* ── Fate sections — enhanced crystal-panel feel ── */
+.fate-sec {
+  position: relative;
+  overflow: hidden;
+}
+.fate-sec::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(184,134,11,.15) 15%,
+    rgba(212,168,67,.5) 30%,
+    rgba(184,134,11,.7) 50%,
+    rgba(212,168,67,.5) 70%,
+    rgba(184,134,11,.15) 85%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+/* ── Moon hint — crystal pearl styling ── */
+.moon-hint {
+  border-left: 2px solid rgba(184,134,11,.35) !important;
+  position: relative;
+}
+.moon-hint::before {
+  content: '○';
+  position: absolute;
+  left: -8px; top: 50%;
+  transform: translateY(-50%);
+  width: 12px; height: 12px;
+  background: radial-gradient(circle at 35% 28%, #FFF4C0, #B8860B 70%);
+  border-radius: 50%;
+  font-size: 0;
+  box-shadow: 0 0 6px rgba(184,134,11,.3);
+}
+
+/* ── Bead card gem preview ── */
+.bc-gem {
+  box-shadow: 
+    0 0 12px rgba(184,134,11,.12),
+    inset -2px -2px 4px rgba(0,0,0,.15),
+    inset 1px 1px 3px rgba(255,255,255,.5) !important;
+}
+
+/* ── Loading orb area ── */
+.lzone-title {
+  text-shadow: 0 0 20px rgba(184,134,11,.2);
+}
+
+/* ── Fate-read paragraphs — drop-cap pearl ── */
+.fate-read > div > p::first-letter {
+  font-family: 'Cinzel', serif;
+  font-size: 1.6em;
+  line-height: 0.8;
+  float: left;
+  margin: 3px 6px 0 0;
+  color: var(--gold);
+  text-shadow: 0 0 8px rgba(184,134,11,.3);
+}
+
+/* ── Global page bg subtle crystal shimmer ── */
+@keyframes shimmer-bg {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Result title area ── */
+.res-title {
+  position: relative;
+}
+.res-title::after {
+  content: '✦ ✦ ✦';
+  display: block;
+  font-size: .55rem;
+  color: rgba(184,134,11,.4);
+  letter-spacing: .5em;
+  text-align: center;
+  margin-top: 4px;
+}
+
+
+/* ── Page sweep transition ── */
+#page-sweep{
+  position:fixed;top:0;right:0;bottom:0;left:0;z-index:9990;
+  pointer-events:none;opacity:0;
+}
+#page-sweep canvas{position:absolute;top:0;right:0;bottom:0;left:0;width:100%;height:100%;}
+</style>
+
+<!-- ── TOP UTILITY BAR ── -->
+<div id="top-bar">
+  <button id="btn-sound" title="Toggle sound">♪</button>
+  <button id="btn-lang" title="Toggle language">中 / EN</button>
+</div>
+
+<div id="p1" class="pg active">
+  <div class="pc" style="align-items:center;">
+    <div class="hero-wrap anim-hero">
+      <!-- Ink-style English crystal logo -->
+      <svg id="bagua-logo" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg"
+           style="position:absolute;top:0;left:0;width:100%;height:100%;">
+        <defs>
+          <radialGradient id="logoGlow" cx="50%" cy="45%" r="55%">
+            <stop offset="0%" stop-color="rgba(184,134,11,0.14)"/>
+            <stop offset="100%" stop-color="rgba(184,134,11,0)"/>
+          </radialGradient>
+          <filter id="inkBlur2"><feGaussianBlur stdDeviation="1.6"/></filter>
+          <filter id="softBlur2"><feGaussianBlur stdDeviation="0.5"/></filter>
+        </defs>
+
+        <!-- Outer ambient glow -->
+        <circle cx="130" cy="130" r="120" fill="url(#logoGlow)"/>
+
+        <!-- Outer ink-brush circle (slightly uneven, dashed) -->
+        <circle cx="130" cy="130" r="116" fill="none"
+                stroke="rgba(139,105,20,0.18)" stroke-width="1.0"
+                stroke-dasharray="10 4 2 4" filter="url(#softBlur2)"
+                style="animation:geo-spin 80s linear infinite;transform-origin:130px 130px;"/>
+
+        <!-- Mid ring -->
+        <circle cx="130" cy="130" r="96" fill="none"
+                stroke="rgba(139,105,20,0.10)" stroke-width="0.6"/>
+
+        <!-- 8 directional spoke marks (Ba Gua positions) -->
+        <g stroke="rgba(139,105,20,0.20)" stroke-width="1.0" stroke-linecap="round">
+          <line x1="130" y1="16"  x2="130" y2="28"/>  <!-- N  -->
+          <line x1="197" y1="36"  x2="190" y2="47"/>  <!-- NE -->
+          <line x1="242" y1="97"  x2="232" y2="104"/> <!-- E  -->
+          <line x1="242" y1="163" x2="232" y2="156"/> <!-- SE -->
+          <line x1="197" y1="224" x2="190" y2="213"/> <!-- S  -->
+          <line x1="63"  y1="224" x2="70"  y2="213"/> <!-- SW -->
+          <line x1="18"  y1="163" x2="28"  y2="156"/> <!-- W  -->
+          <line x1="18"  y1="97"  x2="28"  y2="104"/> <!-- NW -->
+        </g>
+
+        <!-- 8 Ba Gua trigram symbols at spoke ends (small, elegant) -->
+        <g font-size="11" font-family="serif" text-anchor="middle"
+           dominant-baseline="middle" fill="rgba(139,105,20,0.55)">
+          <text x="130" y="12">☰</text>
+          <text x="195" y="32">☱</text>
+          <text x="248" y="100">☲</text>
+          <text x="248" y="160">☳</text>
+          <text x="195" y="228">☴</text>
+          <text x="65"  y="228">☵</text>
+          <text x="12"  y="160">☶</text>
+          <text x="12"  y="100">☷</text>
+        </g>
+
+        <!-- Crystal gem shape in center (multi-facet polygon) -->
+        <g transform="translate(130,130)">
+          <!-- Outer gem outline -->
+          <polygon points="0,-52 38,-20 48,18 0,52 -48,18 -38,-20"
+                   fill="rgba(253,250,245,0.6)"
+                   stroke="rgba(139,105,20,0.35)" stroke-width="1.2"
+                   filter="url(#softBlur2)"/>
+          <!-- Inner facets -->
+          <polygon points="0,-52 38,-20 0,-8 -38,-20"
+                   fill="rgba(184,134,11,0.06)" stroke="rgba(139,105,20,0.18)" stroke-width="0.7"/>
+          <polygon points="38,-20 48,18 0,8 0,-8"
+                   fill="rgba(184,134,11,0.04)" stroke="rgba(139,105,20,0.14)" stroke-width="0.6"/>
+          <polygon points="-38,-20 0,-8 0,8 -48,18"
+                   fill="rgba(184,134,11,0.04)" stroke="rgba(139,105,20,0.14)" stroke-width="0.6"/>
+          <polygon points="0,8 48,18 0,52 -48,18"
+                   fill="rgba(184,134,11,0.08)" stroke="rgba(139,105,20,0.18)" stroke-width="0.7"/>
+          <!-- Highlight glint -->
+          <ellipse cx="-10" cy="-28" rx="8" ry="5" fill="rgba(255,255,255,0.55)"
+                   transform="rotate(-20,-10,-28)"/>
+          <circle cx="-14" cy="-35" r="3" fill="rgba(255,255,255,0.4)"/>
+          <!-- Center dot (red, like a seal) -->
+          <circle cx="0" cy="0" r="3.5" fill="rgba(192,57,43,0.5)"/>
+        </g>
+
+        <!-- Subtle ink-wash texture circles -->
+        <g fill="rgba(139,105,20,0.06)" filter="url(#inkBlur2)">
+          <circle cx="82"  cy="85"  r="6"/>
+          <circle cx="178" cy="85"  r="5"/>
+          <circle cx="85"  cy="175" r="5.5"/>
+          <circle cx="175" cy="175" r="6"/>
+        </g>
+
+        <!-- Fine inner ring -->
+        <circle cx="130" cy="130" r="64" fill="none"
+                stroke="rgba(139,105,20,0.14)" stroke-width="0.6"
+                stroke-dasharray="3 5"/>
+      </svg>
+      <canvas id="star-canvas" width="260" height="260" style="display:none;"></canvas>
+    </div>
+    <h1 class="h1 anim-1">Fated Threads</h1>
+    <div class="rule anim-2"></div>
+    <div class="bead-rule"><div class="bead-rule-inner"><span class="bdr-bead b-sm"></span><span class="bdr-bead b-citr"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-ameth"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-jade"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-ruby"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-aqua"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-citr"></span><span class="bdr-bead b-sm"></span></div></div>
+
+    <p class="h1-sub anim-2">Your Personal Crystal Bracelet Reading</p>
+        <!-- Red seal stamp -->
+        <div class="seal-stamp anim-3">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="44" height="44" rx="3" stroke="#C0392B" stroke-width="1.4" fill="rgba(192,57,43,.04)"/>
+            <rect x="6" y="6" width="36" height="36" rx="2" stroke="#C0392B" stroke-width=".5" fill="none" opacity=".4"/>
+            <text x="24" y="20" text-anchor="middle" fill="#C0392B" font-family="serif" font-size="9.5" letter-spacing="1">命運</text>
+            <text x="24" y="34" text-anchor="middle" fill="#C0392B" font-family="serif" font-size="9.5" letter-spacing="1">紅線</text>
+          </svg>
+        </div>
+    <p class="h1-body anim-3">Ancient Chinese wisdom meets your unique energy. Enter your <strong>birth date</strong> and we'll select healing crystals matched to your zodiac, five elements, and what you're manifesting right now.</p>
+    <div class="pg-bead-orn"><span class="pb-line"></span><span class="pb pb-sm"></span><span class="pb"></span><span class="pb pb-sm"></span><span class="pb"></span><span class="pb pb-sm"></span><span class="pb-line"></span></div>
+    <div class="cult-row anim-4">
+      <div class="cr"><span>💎</span><span class="cr-l">Crystals</span></div>
+      <div class="cr"><span>🏵</span><span class="cr-l">Jade</span></div>
+      <div class="cr"><span>🌕</span><span class="cr-l">Elements</span></div>
+      <div class="cr"><span>☯</span><span class="cr-l">Ba Gua</span></div>
+      <div class="cr"><span>✨</span><span class="cr-l">Gold</span></div>
+    </div>
+    <button class="btn anim-5" id="btn-start">Get My Reading</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 2 — Birthday ════ -->
+<div id="p2" class="pg">
+  <div class="pc">
+    <div class="sdots anim-1"><div class="sd done"></div><div class="sd act"></div><div class="sd"></div><div class="sd"></div><div class="sd"></div></div>
+    <div class="pg-header anim-title">
+      <h2 class="pg-t">When Were You Born?</h2>
+      <div class="pg-rule"></div>
+      <p class="pg-s">The stars record your arrival</p>
+    </div>
+    <div class="fg anim-3">
+      <label class="fl">✦ Date of Birth</label>
+      <input type="date" class="fi" id="bday"/>
+    </div>
+    <button class="btn anim-4" id="btn-p2next">Continue</button>
+    <button class="btn-ghost anim-5" id="btn-p2back">← Back</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 2B — Wish ════ -->
+<div id="p2b" class="pg">
+  <div class="pc">
+    <div class="sdots anim-1"><div class="sd done"></div><div class="sd done"></div><div class="sd act"></div><div class="sd"></div><div class="sd"></div></div>
+    <div class="pg-header anim-title">
+      <div class="pg-bead-orn"><span class="pb-line"></span><span class="pb pb-sm"></span><span class="pb"></span><span class="pb pb-sm"></span><span class="pb"></span><span class="pb pb-sm"></span><span class="pb-line"></span></div>
+      <h2 class="pg-t">What Are You Manifesting?</h2>
+      <div class="pg-rule"></div>
+      <p class="pg-s">Choose the energy you want to attract</p>
+    </div>
+    <div class="fg anim-3" style="max-width:420px;text-align:center;">
+      <div class="chips" style="justify-content:center;">
+        <span class="chip" onclick="selW(this,'Love & Romance')">❤ Love</span>
+        <span class="chip" onclick="selW(this,'Wealth & Prosperity')">✦ Wealth</span>
+        <span class="chip" onclick="selW(this,'Health & Longevity')">☘ Health</span>
+        <span class="chip" onclick="selW(this,'Career & Ambition')">⚡ Career</span>
+        <span class="chip" onclick="selW(this,'Peace & Protection')">☾ Peace</span>
+        <span class="chip" onclick="selW(this,'Wisdom & Clarity')">✧ Wisdom</span>
+        <span class="chip" onclick="selW(this,'Family & Harmony')">⌂ Family</span>
+      </div>
+    </div>
+    <button class="btn anim-4" id="btn-p2bnext">Continue</button>
+    <button class="btn-ghost anim-5" id="btn-p2bback">← Back</button>
+  </div>
+</div>
+
+<!-- ════ PAGE 3 — Recipient + Energy ════ -->
+<div id="p3" class="pg">
+  <div class="pc">
+    <div class="sdots anim-1"><div class="sd done"></div><div class="sd done"></div><div class="sd done"></div><div class="sd act"></div><div class="sd"></div></div>
+    <div class="pg-header anim-title">
+      <div class="pg-bead-orn"><span class="pb-line"></span><span class="pb pb-sm"></span><span class="pb"></span><span class="pb pb-sm"></span><span class="pb"></span><span class="pb pb-sm"></span><span class="pb-line"></span></div>
+      <h2 class="pg-t">Who Is This For?</h2>
+      <div class="pg-rule"></div>
+      <p class="pg-s">Who shall wear this sacred thread?</p>
+    </div>
+    <div class="rcards anim-3" id="rcards">
+      <div class="rcard" data-val="Myself"><span class="ri">🌙</span><div class="rn">Myself</div></div>
+      <div class="rcard" data-val="My Partner"><span class="ri">💫</span><div class="rn">Partner</div></div>
+      <div class="rcard" data-val="A Friend"><span class="ri">✨</span><div class="rn">Friend</div></div>
+    </div>
+    <div class="energy-lbl anim-4">✦ Wearer's Energy</div>
+    <div class="gbts anim-4" id="gbts">
+      <button class="gbt" data-val="Feminine">Feminine ♀</button>
+      <button class="gbt" data-val="Masculine">Masculine ♂</button>
+      <button class="gbt" data-val="Universal">Universal</button>
+    </div>
+    <button class="btn anim-5" id="btn-forge">Create My Bracelet</button>
+    <button class="btn-ghost anim-6" id="btn-p3back">← Back</button>
+  </div>
+</div>
+
+<!-- ════ RITUAL ════ -->
+<div id="ritual-screen">
+  <canvas id="rc"></canvas>
+  <div class="rt-title">Your Fate Is Woven in Three</div>
+  <div class="rt-desc" id="rt-desc">The oracle has identified three sacred coordinates in your energy field.</div>
+  <div class="rt-trig" id="rt-trig">☴</div>
+  <div class="rt-tname" id="rt-tname">Wind · Wood · Gentle Penetration</div>
+  <div class="rt-inst" id="rt-inst-txt">✦ Seal your intention · touch each point ✦</div>
+  <div class="rpt-count" id="rpt-count"><div class="rpt-pip"></div><div class="rpt-pip"></div><div class="rpt-pip"></div></div>
+</div>
+
+<!-- ════ PAGE 4 ════ -->
+<div id="p4" class="pg">
+  <div class="pc" style="max-width:480px;margin:0 auto;align-items:center;">
+    <div class="sdots"><div class="sd done"></div><div class="sd done"></div><div class="sd done"></div><div class="sd done"></div><div class="sd act"></div></div>
+    <div class="lzone" id="lzone">
+      <div id="load-orb-wrap"><canvas id="load-orb-cv" width="160" height="160"></canvas></div>
+      <div class="lzone-title" id="lt">Consulting the Oracle…</div>
+      <div class="load-bagua-row" style="font-size:.9rem;letter-spacing:.3em;color:rgba(42,28,8,.45);margin:6px 0;">☰ ☱ ☲ ☳ ☴ ☵ ☶ ☷</div>
+      <div class="ptrack"><div class="pfill" id="pfill"></div></div>
+      <div class="lstep" id="ls">Reading the heavens…</div>
+    </div>
+    <div id="res-area">
+      <div class="res-title" id="res-title"></div>
+      <div class="res-sub" id="res-sub"></div>
+      <div class="bwrap"><svg id="bsvg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg"></svg></div>
+      <div class="bead-rule"><div class="bead-rule-inner"><span class="bdr-bead b-gold"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-jade"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-ameth"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-ruby"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-citr"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-aqua"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-gold"></span></div></div>
+      <div class="fate-sec">
+        <div class="fate-t"><span class="gem-accent"><svg width="16.0" height="18.0" viewBox="0 0 16 18">
+<defs><radialGradient id="gg10" cx="35%" cy="28%" r="65%">
+<stop offset="0%" stop-color="rgba(255,255,255,.95)"/>
+<stop offset="25%" stop-color="#FFE090"/>
+<stop offset="70%" stop-color="#D4A843"/>
+<stop offset="100%" stop-color="rgba(0,0,0,.4)"/>
+</radialGradient></defs>
+<polygon points="8,1 14,5 15,11 8,17 1,11 2,5" fill="url(#gg10)" stroke="#D4A843" stroke-width=".6" stroke-opacity=".5"/>
+<polygon points="8,1 14,5 8,7 2,5" fill="rgba(255,255,255,.18)"/>
+<ellipse cx="5.5" cy="4" rx="2" ry="1.3" fill="rgba(255,255,255,.6)" transform="rotate(-15,5.5,4)"/>
+</svg></span> Your Eight Trigram Destiny Reading <span class="gem-accent"><svg width="16.0" height="18.0" viewBox="0 0 16 18">
+<defs><radialGradient id="gg10" cx="35%" cy="28%" r="65%">
+<stop offset="0%" stop-color="rgba(255,255,255,.95)"/>
+<stop offset="25%" stop-color="#E0C0FF"/>
+<stop offset="70%" stop-color="#8B44CC"/>
+<stop offset="100%" stop-color="rgba(0,0,0,.4)"/>
+</radialGradient></defs>
+<polygon points="8,1 14,5 15,11 8,17 1,11 2,5" fill="url(#gg10)" stroke="#8B44CC" stroke-width=".6" stroke-opacity=".5"/>
+<polygon points="8,1 14,5 8,7 2,5" fill="rgba(255,255,255,.18)"/>
+<ellipse cx="5.5" cy="4" rx="2" ry="1.3" fill="rgba(255,255,255,.6)" transform="rotate(-15,5.5,4)"/>
+</svg></span></div>
+        <div class="fate-grid" id="fate-grid"></div>
+        <div class="fate-read" id="fate-read"></div>
+      </div>
+      <div class="bead-rule"><div class="bead-rule-inner"><span class="bdr-bead b-sm"></span><span class="bdr-bead b-ruby"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-citr"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-jade"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-ameth"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-aqua"></span><span class="bdr-bead b-sm"></span><span class="bdr-bead b-gold"></span><span class="bdr-bead b-sm"></span></div></div>
+      <div class="bgrid" id="bgrid"></div>
+      <div class="moon-hint" id="moon-hint"></div>
+      <div class="act-row">
+        <button class="btn-sm" id="btn-copy">📋 Copy Reading</button>
+        <button class="btn" id="btn-restart">✦ Forge a New Bracelet</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE VEIL (transition overlay) ── -->
+<div id="page-veil"><canvas id="veil-cv"></canvas></div>
+
+<!-- ── PAGE SWEEP (bagua ink sweep overlay) ── -->
+<div id="page-sweep"><canvas id="sweep-cv"></canvas></div>
+
+<!-- ── VICTORY SCREEN ── -->
+<div id="vs">
+  <canvas id="vs-cv"></canvas>
+  <div class="vs-msg">
+    <div class="vs-big">Your Bracelet is Forged</div>
+    <div class="vs-sm">✦ The Crystals Have Spoken ✦</div>
+  </div>
+</div>
+
+<!-- ── BEAD REVEAL OVERLAY ── -->
+<div id="bro">
+  <canvas id="bro-particles"></canvas>
+  <div class="brc">
+    <div class="brc-inner"></div>
+    <div class="brc-shine"></div>
+    <div class="brc-num" id="brc-num">Stone 1 of 10</div>
+    <div class="gem-wrap">
+      <canvas id="gem-cv" width="200" height="200"></canvas>
+    </div>
+    <div class="brc-name" id="brc-name"></div>
+    <div class="brc-cn" id="brc-cn"></div>
+    <div class="brc-div">
+      <div class="brc-div-line"></div>
+      <div class="brc-div-gem">✦</div>
+      <div class="brc-div-line"></div>
+    </div>
+    <div class="brc-why" id="brc-why"></div>
+    <div class="brd-row" id="brd-row"></div>
+    <div class="brc-tap-wrap">
+      <div class="brc-gesture">
+        <svg width="60" height="72" viewBox="0 0 60 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 66 C15 60 9 48 9 36 L9 18 C9 13 13 10 18 10 C18 10 18 8 21 6.5 C25 5 28 8 30 10 C32 8 35 5 39 6.5 C42 8 42 10 42 10 C47 10 51 13 51 18 L51 36 C51 48 45 60 30 66Z" fill="rgba(180,140,60,0.12)" stroke="rgba(180,140,60,0.45)" stroke-width="1.2"/>
+          <circle cx="30" cy="11" r="4" fill="rgba(180,140,60,0.25)"/>
+          <circle class="tap-ring r1" cx="30" cy="68" r="10" stroke="rgba(180,140,60,0.5)" stroke-width="1.2" fill="none"/>
+          <circle class="tap-ring r2" cx="30" cy="68" r="16" stroke="rgba(180,140,60,0.3)" stroke-width="1" fill="none"/>
+          <circle class="tap-ring r3" cx="30" cy="68" r="22" stroke="rgba(180,140,60,0.15)" stroke-width="0.8" fill="none"/>
+        </svg>
+      </div>
+      <div class="brc-tap">Tap to reveal next stone</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── BEAD TOOLTIP ── -->
+<div class="bead-tip" id="bead-tip">
+  <div class="bt-n" id="bt-n"></div>
+  <div id="bt-d"></div>
+</div>
+
+<!-- ── NOISE / PAPER TEXTURE ── -->
+<div id="noise-layer"></div>
+
+<!-- ── CORNER ORNAMENTS ── -->
+<svg class="orn orn-tl" width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M2 30 L2 2 L30 2" stroke="rgba(180,140,60,0.5)" stroke-width="1"/><path d="M2 18 L2 2 L18 2" stroke="rgba(180,140,60,0.25)" stroke-width="0.5"/></svg>
+<svg class="orn orn-tr" width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M2 30 L2 2 L30 2" stroke="rgba(180,140,60,0.5)" stroke-width="1"/><path d="M2 18 L2 2 L18 2" stroke="rgba(180,140,60,0.25)" stroke-width="0.5"/></svg>
+<svg class="orn orn-bl" width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M2 30 L2 2 L30 2" stroke="rgba(180,140,60,0.5)" stroke-width="1"/><path d="M2 18 L2 2 L18 2" stroke="rgba(180,140,60,0.25)" stroke-width="0.5"/></svg>
+<svg class="orn orn-br" width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M2 30 L2 2 L30 2" stroke="rgba(180,140,60,0.5)" stroke-width="1"/><path d="M2 18 L2 2 L18 2" stroke="rgba(180,140,60,0.25)" stroke-width="0.5"/></svg>
+
+<!-- ── CUSTOM CURSOR ── -->
+<div id="cur"></div>
+<div id="cur2"></div>
+
+<!-- ── WATER RIPPLE CANVAS ── -->
+<canvas id="water-ripple"></canvas>
+
+<script>
+(function(){
+  const _lin=CanvasRenderingContext2D.prototype.createLinearGradient;
+  const _rad=CanvasRenderingContext2D.prototype.createRadialGradient;
+  function isOK(...vals){return vals.every(v=>Number.isFinite(v));}
+  function dummyGrad(ctx){
+    const g=_lin.call(ctx,0,0,1,0);
+    g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(1,'rgba(0,0,0,0)');
+    return g;
+  }
+  CanvasRenderingContext2D.prototype.createLinearGradient=function(x0,y0,x1,y1){
+    if(!isOK(x0,y0,x1,y1))return dummyGrad(this);
+    if(x0===x1&&y0===y1)x1+=0.001;
+    return _lin.call(this,x0,y0,x1,y1);
+  };
+  CanvasRenderingContext2D.prototype.createRadialGradient=function(x0,y0,r0,x1,y1,r1){
+    if(!isOK(x0,y0,r0,x1,y1,r1))return dummyGrad(this);
+    if(r0<0)r0=0; if(r1<=0)r1=0.001;
+    return _rad.call(this,x0,y0,r0,x1,y1,r1);
+  };
+})();
+
+// ══════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════
+const STONES={
+  1:{name:'Garnet',cn:'石榴石',color:'#E40608',glow:'#FF3030',meaning:'Passion & Courage',why:'Garnet ignites the fire energy of January — it attracts love and shields against misfortune during the coldest months, warming the spirit from within.'},
+  2:{name:'Amethyst',cn:'紫水晶',color:'#9418D6',glow:'#C060FF',meaning:'Calm & Intuition',why:'Amethyst resonates with Water energy, stilling the overactive mind born under winter stars and opening psychic channels blocked by cold.'},
+  3:{name:'Aquamarine',cn:'海蓝宝',color:'#06ACE0',glow:'#40C8FF',meaning:'Courage & Flow',why:'As spring awakens, Aquamarine channels the rising Wood energy — the courage to grow and the eloquence to be heard across great distances.'},
+  4:{name:'Clear Quartz',cn:'白水晶',color:'#E4EEFF',glow:'#FFFFFF',meaning:'Clarity & Power',why:'Clear Quartz mirrors pure potential of mid-spring. It amplifies every stone in the bracelet and clarifies intention like still water reflects the moon.'},
+  5:{name:'Emerald',cn:'祖母绿',color:'#029830',glow:'#20E060',meaning:'Abundance & Growth',why:'Emerald is Earth energy at peak strength — worn in May, it magnetizes wealth and opens the heart to receive what the universe already offers.'},
+  6:{name:'Moonstone',cn:'月光石',color:'#B8CEF0',glow:'#E0EEFF',meaning:'Intuition & Yin',why:'Moonstone captures Yin energy at its most potent, balancing emotions and enhancing dreams for those born at the threshold of summer.'},
+  7:{name:'Ruby',cn:'红宝石',color:'#E80210',glow:'#FF2020',meaning:'Vitality & Passion',why:'Ruby carries intense Fire energy at peak — it fortifies willpower, protects from envy, and magnetizes good fortune through sheer force of being.'},
+  8:{name:'Peridot',cn:'橄榄石',color:'#60C408',glow:'#90E010',meaning:'Transformation & Joy',why:'Peridot holds late-summer harvest energy — it releases old patterns and invites abundance as the season turns gold around its wearer.'},
+  9:{name:'Sapphire',cn:'蓝宝石',color:'#0A24DE',glow:'#1050FF',meaning:'Wisdom & Loyalty',why:'Sapphire echoes deep Water-Metal energy of autumn — it sharpens the intellect and draws honourable relationships to those who seek truth.'},
+  10:{name:'Tourmaline',cn:'碧玺',color:'#C8086A',glow:'#F020A0',meaning:'Creativity & Balance',why:'Tourmaline contains every colour of changing leaves — it grounds scattered energy and ignites creative fire simultaneously within the wearer.'},
+  11:{name:'Citrine',cn:'黄水晶',color:'#E0B008',glow:'#FFD840',meaning:'Abundance & Optimism',why:'Citrine channels the last golden light of autumn — the Merchant Stone of China, it draws wealth and banishes all forms of negativity.'},
+  12:{name:'Tanzanite',cn:'坦桑石',color:'#0C22E6',glow:'#3848FF',meaning:'Vision & Transformation',why:'Tanzanite resonates with deep introspective energy of late winter — it bridges earth and spirit for those born at the turning of the year.'},
+};
+const JADES=[
+  {name:'White Jade',cn:'和田白玉',color:'#F0E8D4',glow:'#FEFAF0',meaning:'Protection & Purity',why:'Hetian White Jade is the most sacred stone in China, worn by emperors for 4,000 years. It shields the wearer and attracts divine blessings that transcend ordinary fortune.'},
+  {name:'Imperial Jade',cn:'翡翠',color:'#047638',glow:'#20C060',meaning:'Fortune & Harmony',why:'Imperial Jade is more precious than diamonds in Chinese culture. It channels Wood energy to bring luck, growth and protection from harm to all who wear it.'},
+  {name:'Red Agate',cn:'南红玛瑙',color:'#CC0808',glow:'#F02020',meaning:'Vitality & Protection',why:'South Red Agate from Yunnan Province has been used in Chinese ritual for 2,000 years. Its fire energy drives away evil spirits and strengthens the life force.'},
+  {name:'Lapis Lazuli',cn:'青金石',color:'#0C1890',glow:'#2040C8',meaning:'Heaven & Truth',why:'Ancient China imported Lapis via the Silk Road. Symbolising the heavens, it connects the wearer to divine truth and was used to decorate the halls of emperors.'},
+  {name:'Purple Chalcedony',cn:'紫玉髓',color:'#8020A0',glow:'#C040E0',meaning:'Spiritual Clarity',why:'Purple Chalcedony balances Yin and Yang energy. In Chinese feng shui it purifies the spirit and strengthens connection to ancestral wisdom.'},
+];
+const GOLDS=[
+  {name:'Cloud Motif Gold',cn:'祥云金配',color:'#C8983A',glow:'#FFD060',meaning:'Auspicious clouds carry good fortune wherever you travel.'},
+  {name:'Lotus Gold Knot',cn:'莲花金结',color:'#C8983A',glow:'#FFD060',meaning:'The Lotus rises from mud to bloom — purity, resilience and awakening.'},
+  {name:'Bagua Gold Disc',cn:'八卦金片',color:'#C8983A',glow:'#FFD060',meaning:'The Eight Trigrams harmonise the Five Elements and protect from negative forces.'},
+  {name:'Ruyi Gold Lock',cn:'如意金锁',color:'#C8983A',glow:'#FFD060',meaning:'Ru Yi — "as you wish" — worn since the Han Dynasty to fulfil every desire.'},
+  {name:'Phoenix Gold Ring',cn:'凤凰金环',color:'#C8983A',glow:'#FFD060',meaning:'The Phoenix rises with renewed power — rebirth, grace and enduring beauty.'},
+];
+const ZODIACS={Rat:{en:'Rat',cn:'鼠',icon:'🐭',element:'Water',trait:'clever, adaptable and quick-witted'},Ox:{en:'Ox',cn:'牛',icon:'🐂',element:'Earth',trait:'patient, dependable and quietly determined'},Tiger:{en:'Tiger',cn:'虎',icon:'🐯',element:'Wood',trait:'brave, magnetic and fiercely competitive'},Rabbit:{en:'Rabbit',cn:'兔',icon:'🐰',element:'Wood',trait:'gentle, elegant and naturally diplomatic'},Dragon:{en:'Dragon',cn:'龙',icon:'⭐',element:'Earth',trait:'charismatic, visionary and a natural-born leader'},Snake:{en:'Snake',cn:'蛇',icon:'🐍',element:'Fire',trait:'wise, deeply intuitive and quietly mysterious'},Horse:{en:'Horse',cn:'马',icon:'🐴',element:'Fire',trait:'energetic, adventurous and free-spirited'},Goat:{en:'Goat',cn:'羊',icon:'🐑',element:'Earth',trait:'creative, artistic and deeply compassionate'},Monkey:{en:'Monkey',cn:'猴',icon:'🐵',element:'Metal',trait:'inventive, playful and brilliantly multi-talented'},Rooster:{en:'Rooster',cn:'鸡',icon:'🐔',element:'Metal',trait:'observant, hardworking and meticulous'},Dog:{en:'Dog',cn:'狗',icon:'🐕',element:'Earth',trait:'loyal, deeply honest and utterly reliable'},Pig:{en:'Pig',cn:'猪',icon:'🐷',element:'Water',trait:'generous, diligent and warmly compassionate'}};
+const ZO=['Rat','Ox','Tiger','Rabbit','Dragon','Snake','Horse','Goat','Monkey','Rooster','Dog','Pig'];
+const EL10=['Metal','Metal','Water','Water','Wood','Wood','Fire','Fire','Earth','Earth'];
+const TRIGRAMS=[
+  {sym:'☰',name:'Heaven · Metal · Creative Force',why:'Your birth energy aligns with Qian — the Creative Heaven. Strength, perseverance and leadership flow through your destiny. The Oracle speaks: do not doubt your power.'},
+  {sym:'☷',name:'Earth · Receptive Power',why:'Your chart resonates with Kun — the Receptive Earth. Nurturing strength and the power to support all who come near flows through you.'},
+  {sym:'☳',name:'Thunder · Wood · Awakening',why:'Zhen governs your energy — sudden awakening and dynamic movement. You break silence and initiate change wherever you walk.'},
+  {sym:'☴',name:'Wind · Wood · Gentle Penetration',why:'Xun guides your path — gentle yet unstoppable, like wind shaping mountains over centuries. Your influence builds quietly and runs impossibly deep.'},
+  {sym:'☵',name:'Water · Abyss · Flowing Wisdom',why:'Kan shapes your nature — the deep water flowing through all obstacles. You carry hidden depths that reveal themselves only to those who wait.'},
+  {sym:'☲',name:'Fire · Clarity · Radiance',why:'Li burns in your chart — bright fire that clings to what it illuminates. You bring warmth, vision and light to all who enter your orbit.'},
+  {sym:'☶',name:'Mountain · Earth · Stillness',why:'Gen anchors your energy — the still mountain that cannot be moved. Your calm strength is the foundation upon which others build.'},
+  {sym:'☱',name:'Lake · Metal · Joy',why:'Dui flows through your destiny — the joyful lake reflecting heaven. You attract beauty, pleasure and the deep rewards of inner harmony.'},
+];
+const LOAD_STEPS=[
+  {icon:'🔮',title:'Consulting the Oracle',step:'Reading the heavens…'},
+  {icon:'📜',title:'Decoding Your Birth Chart',step:'Mapping the Five Elements…'},
+  {icon:'⭐',title:'Identifying Your Zodiac',step:'Finding your guardian animal…'},
+  {icon:'🏔',title:'Sensing the Jade',step:'Listening to the stones…'},
+  {icon:'💫',title:'Selecting Destiny Crystals',step:'Aligning energies with your wish…'},
+  {icon:'🌊',title:'Weaving the Sacred Thread',step:'Binding stone to stone…'},
+  {icon:'✨',title:'Sealing the Golden Blessing',step:'Almost complete…'},
+];
+const WISH_MAP={'Love & Romance':[6,7,10],'Wealth & Prosperity':[5,11,8],'Health & Longevity':[5,3,8],'Career & Ambition':[9,4,2],'Peace & Protection':[1,6,12],'Wisdom & Clarity':[2,9,12],'Family & Harmony':[6,1,11]};
+const FATE_TMPL={'Love & Romance':'Your birth chart carries the mark of <em>Yuán Fèn (缘分)</em> — destined connection. The {element} element within you governs {elem}, drawing bonds of unusual depth. As a {zodiac}-year soul, you are {trait} — the very qualities that make deep love possible. Wear this bracelet on your <em>left wrist</em>: in Chinese tradition, the left side connects directly to the heart.','Wealth & Prosperity':'Your chart shows a natural affinity with <em>Cáishén (财神)</em>, the God of Wealth. The {element} element governs {elem} in your destiny. As someone born in the year of the {zodiac}, you are {trait} — traits the ancient sages considered essential for accumulating lasting fortune. Wear on your <em>right wrist</em> when meeting important people.','Health & Longevity':'In Chinese medicine, your birth season aligns with a <em>vital meridian pathway</em>. The {zodiac} carries strong life-force — your bracelet amplifies and circulates this Qi through your body. The {element} element governs {elem} in Traditional Chinese Medicine. Each morning, <em>rotate each bead three times</em> — an ancient Daoist ritual of renewal.','Career & Ambition':'Your birth energy aligns with <em>rising Wood energy</em> — the ancient symbol of upward growth and ambition fulfilled. The {element} element in your chart governs {elem}. The {zodiac} brings {trait} to every endeavour. Keep this bracelet visible during important moments — the gold emblem channels <em>imperial energy</em>, commanding respect.','Peace & Protection':'In Chinese cosmology, you were born during shifting cosmic tides — your bracelet is calibrated to <em>anchor and protect your energy field</em>. The {zodiac} possesses {trait}, mirrored in every stone selected. The {element} element creates {elem} according to Daoist texts. Hang your bracelet above your front door at night.','Wisdom & Clarity':'Your birth chart places you under the influence of <em>Water energy</em> — what the ancient sages most associated with deep wisdom and inner truth. The {zodiac} archetype carries {trait}. The {element} element governs {elem}. Touch the sapphire or amethyst when making important decisions — it is said to open the <em>Third Eye (天眼)</em>.','Family & Harmony':'Your birth energy resonates with <em>Earth element energy</em> — the Chinese element of home, roots and nourishment. The {zodiac} holds {trait}, qualities that the Confucian ideal of family harmony depends upon. The {element} element governs {elem}. Gift this bracelet with a <em>red ribbon</em> — red activates the blessing.'};
+const ELEM_MAP={Metal:{love:'discipline and precision in relationships',wealth:'financial discipline and cutting through to profit',health:'the lungs and skin',career:'precision, leadership and removing obstacles',peace:'a natural protective shield',wisdom:'logical clarity — cutting through confusion',family:'structure and clear boundaries that create safety'},Water:{love:'emotional depth and magnetic attraction',wealth:'flowing abundance like water finding its course',health:'the kidneys and deep reserves of stamina',career:'adaptability and grace in navigating complexity',peace:'emotional fluidity — difficulties wash away',wisdom:'deep intuition and sensing hidden truth',family:'emotional attunement to unspoken needs'},Wood:{love:'growth — relationships deepen each year',wealth:'entrepreneurial spirit and growing opportunity',health:'the liver and eyes — movement and flexibility',career:'vision and seeing long-term opportunity',peace:'resilience — bending without breaking like bamboo',wisdom:'creative synthesis across different domains',family:'growth and expansion of the family circle'},Fire:{love:'passionate all-consuming connection',wealth:'bold opportunity-taking and magnetic fortune',health:'the heart — joy and connection as medicine',career:'charisma and inspiring others to follow',peace:'burning away negativity from environments',wisdom:'illumination and the flash of sudden insight',family:'warmth and celebration that keeps the family gathered'},Earth:{love:'steadfast loyal partnership',wealth:'steady accumulation and patience to build abundance',health:'the stomach — nourishment and grounded routine',career:'reliability and trustworthiness that endures',peace:'deep-rooted stability carried within',wisdom:'practical wisdom from lived experience',family:'the anchor and center others gather around'}};
+
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let wish='',recipient='',gender='';
+let allBeads=[],revIdx=0,revBeads=[];
+let ritualLit=0,curTrigram=null;
+
+// ══════════════════════════════════════════════════
+// GALAXY CANVAS — slow galactic wave shimmer
+// ══════════════════════════════════════════════════
+(function(){
+  // ── Lightweight ink-wash ambient animation ──
+  // Drifting Chinese characters + subtle cloud motifs on white background
+
+  const HANS = ['福','壽','吉','緣','運','財','德','和','禧','瑞'];
+  const W = () => window.innerWidth, H = () => window.innerHeight;
+
+  // Create a hidden SVG overlay for static ink patterns
+  const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.style.cssText='position:fixed;top:0;right:0;bottom:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:1;';
+  svg.setAttribute('id','ink-wash');
+  document.body.insertBefore(svg, document.body.firstChild);
+
+  // Draw rich ink-wash Chinese decorative elements
+  function drawInkWash() {
+    const w=W(), h=H();
+    svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+    // Helper: auspicious cloud path
+    const cloud=(cx,cy,s)=>`M${cx},${cy+s*.3} Q${cx-s*.6},${cy+s*.1} ${cx-s*.8},${cy-s*.1} Q${cx-s*.9},${cy-s*.4} ${cx-s*.6},${cy-s*.5} Q${cx-s*.4},${cy-s*.7} ${cx-s*.1},${cy-s*.5} Q${cx},${cy-s*.8} ${cx+s*.3},${cy-s*.5} Q${cx+s*.5},${cy-s*.7} ${cx+s*.7},${cy-s*.4} Q${cx+s*.95},${cy-s*.1} ${cx+s*.8},${cy+s*.15} Q${cx+s*.9},${cy+s*.45} ${cx+s*.6},${cy+s*.5} Q${cx+s*.3},${cy+s*.7} ${cx},${cy+s*.5} Q${cx-s*.3},${cy+s*.7} ${cx-s*.6},${cy+s*.5} Q${cx-s*.85},${cy+s*.45} ${cx},${cy+s*.3} Z`;
+    svg.innerHTML = `
+      <!-- ── 祥云 Auspicious clouds – corners ── -->
+      <g fill="none" stroke="#8B6914">
+        <!-- TR corner clouds -->
+        <g opacity="0.07" stroke-width="0.7" transform="translate(${w-5},5)">
+          <path d="${cloud(60,40,32)}"/>
+          <path d="${cloud(100,20,22)}" opacity="0.6"/>
+          <path d="${cloud(30,70,18)}" opacity="0.5"/>
+        </g>
+        <!-- BL corner clouds -->
+        <g opacity="0.06" stroke-width="0.7" transform="translate(0,${h}) scale(1,-1)">
+          <path d="${cloud(60,40,28)}"/>
+          <path d="${cloud(28,72,18)}" opacity="0.5"/>
+        </g>
+        <!-- TL faint -->
+        <g opacity="0.035" stroke-width="0.5" transform="">
+          <path d="${cloud(40,50,22)}"/>
+        </g>
+      </g>
+
+      <!-- ── 竹子 Bamboo stalks ── -->
+      <g opacity="0.028" stroke="#8B6914" stroke-width="0.8" fill="none">
+        <!-- Left stalk -->
+        <line x1="${w*0.06}" y1="0" x2="${w*0.058}" y2="${h}"/>
+        <line x1="${w*0.065}" y1="0" x2="${w*0.063}" y2="${h}" stroke-width="0.4" opacity="0.6"/>
+        ${[0.15,0.28,0.42,0.56,0.7,0.84].map(t=>`
+          <line x1="${w*0.06}" y1="${h*t}" x2="${w*0.085}" y2="${h*t-8}" stroke-width="0.6"/>
+          <line x1="${w*0.06}" y1="${h*t}" x2="${w*0.035}" y2="${h*t-6}" stroke-width="0.6"/>
+          <ellipse cx="${w*0.06}" cy="${h*t}" rx="3.5" ry="2.2"/>
+        `).join('')}
+        <!-- Right stalk -->
+        <line x1="${w*0.94}" y1="0" x2="${w*0.942}" y2="${h}"/>
+        <line x1="${w*0.935}" y1="0" x2="${w*0.937}" y2="${h}" stroke-width="0.4" opacity="0.6"/>
+        ${[0.1,0.24,0.38,0.52,0.66,0.8].map(t=>`
+          <line x1="${w*0.94}" y1="${h*t}" x2="${w*0.965}" y2="${h*t-8}" stroke-width="0.6"/>
+          <line x1="${w*0.94}" y1="${h*t}" x2="${w*0.915}" y2="${h*t-6}" stroke-width="0.6"/>
+          <ellipse cx="${w*0.94}" cy="${h*t}" rx="3.5" ry="2.2"/>
+        `).join('')}
+      </g>
+
+      <!-- ── 山水波纹 Mountain wave lines ── -->
+      <g fill="none" stroke="#8B6914" stroke-width="0.5" opacity="0.04">
+        ${[0.22,0.25,0.28,0.72,0.75,0.78].map((t,i)=>`
+          <path d="M0,${h*t} ${Array.from({length:8},(_,j)=>`Q${w*(j+0.5)/8},${h*(t+(i<3?-1:1)*0.015*Math.sin(j*1.3+i))} ${w*(j+1)/8},${h*t}`).join(' ')}"/>
+        `).join('')}
+      </g>
+
+      <!-- ── 梅花 Plum blossoms (top area) ── -->
+      <g opacity="0.055" fill="#C0392B" stroke="none">
+        ${[[w*0.18,h*0.08],[w*0.82,h*0.12],[w*0.5,h*0.04]].map(([bx,by])=>`
+          <g transform="translate(${bx},${by})">
+            ${[0,72,144,216,288].map(a=>`<circle cx="${Math.cos(a*Math.PI/180)*7}" cy="${Math.sin(a*Math.PI/180)*7}" r="4.5"/>`).join('')}
+            <circle cx="0" cy="0" r="2.5" fill="#8B6914"/>
+          </g>
+        `).join('')}
+      </g>
+
+      <!-- ── 太极鱼纹 Taiji swirl watermark (center bg) ── -->
+      <g opacity="0.018" fill="none" stroke="#8B6914" stroke-width="0.6" transform="translate(${w*.5},${h*.5})">
+        <circle cx="0" cy="0" r="${Math.min(w,h)*.32}"/>
+        <circle cx="0" cy="-${Math.min(w,h)*.16}" r="${Math.min(w,h)*.16}"/>
+        <circle cx="0" cy="${Math.min(w,h)*.16}" r="${Math.min(w,h)*.16}"/>
+        <path d="M0,-${Math.min(w,h)*.32} A${Math.min(w,h)*.16},${Math.min(w,h)*.16} 0 0 1 0,0 A${Math.min(w,h)*.16},${Math.min(w,h)*.16} 0 0 0 0,${Math.min(w,h)*.32}" stroke-width="0.4"/>
+      </g>
+
+      <!-- ── 线框装饰 Fine border lines ── -->
+      <g opacity="0.05" stroke="#8B6914" fill="none" stroke-width="0.5">
+        <rect x="12" y="12" width="${w-24}" height="${h-24}" rx="4"/>
+        <rect x="18" y="18" width="${w-36}" height="${h-36}" rx="2" stroke-width="0.25" opacity="0.5"/>
+      </g>
+
+      <!-- ── 回纹 Greek-key meander (top & bottom) ── -->
+      <g opacity="0.04" stroke="#8B6914" fill="none" stroke-width="0.6">
+        ${Array.from({length:Math.floor(w/20)},(_,i)=>`
+          <polyline points="${i*20+2},4 ${i*20+2},10 ${i*20+10},10 ${i*20+10},2 ${i*20+18},2 ${i*20+18},14"/>
+        `).join('')}
+        ${Array.from({length:Math.floor(w/20)},(_,i)=>`
+          <polyline points="${i*20+2},${h-4} ${i*20+2},${h-10} ${i*20+10},${h-10} ${i*20+10},${h-2} ${i*20+18},${h-2} ${i*20+18},${h-14}"/>
+        `).join('')}
+      </g>
+    `;
+  }
+  drawInkWash();
+  window.addEventListener('resize', drawInkWash);
+
+  // Floating particles — gentle ink characters
+  window._setHaloTheme = () => {}; // noop (not needed on white)
+
+  setInterval(() => {
+    const p = document.createElement('div');
+    p.className = 'fp';
+    const syms = ['福','壽','緣','吉','和','✦','·','○'];
+    p.textContent = syms[Math.floor(Math.random()*syms.length)];
+    const d = 10 + Math.random()*14, dl = Math.random()*4;
+    p.style.cssText = `left:${Math.random()*100}vw;bottom:-20px;font-size:${d}px;color:rgba(180,140,60,${0.05+Math.random()*0.1});--d:${14+Math.random()*10}s;--dl:${dl}s`;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), (28+dl)*1000);
+  }, 3500);
+})();
+
+// ══════════════════════════════════════════════════
+// CONSTELLATION LOGO — star map style
+// ══════════════════════════════════════════════════
+(function(){
+  const cvs=document.getElementById('star-canvas');
+  const ctx=cvs.getContext('2d');
+  const W=260,H=260,CX=130,CY=130;
+
+  // Design: Orion-ish Chinese zodiac constellation
+  // Key star nodes forming an elegant pattern
+  const NODES=[
+    // Center cluster (the "bracelet" shape)
+    {x:130,y:80,  r:6,  name:'α',brightness:1.0,  col:'#FFFFFF'},
+    {x:170,y:105, r:4.5,name:'β',brightness:0.85, col:'#FFE8B0'},
+    {x:175,y:148, r:5,  name:'γ',brightness:0.9,  col:'#B8D0FF'},
+    {x:148,y:182, r:4,  name:'δ',brightness:0.75, col:'#FFFFFF'},
+    {x:110,y:188, r:4.5,name:'ε',brightness:0.8,  col:'#FFE8B0'},
+    {x:84, y:162, r:4,  name:'ζ',brightness:0.7,  col:'#B8FFD0'},
+    {x:82, y:120, r:5,  name:'η',brightness:0.88, col:'#B8D0FF'},
+    {x:106,y:94,  r:4,  name:'θ',brightness:0.72, col:'#FFFFFF'},
+    // Outer guide stars
+    {x:50, y:60,  r:3,  name:'ι',brightness:0.55, col:'#E0B8FF'},
+    {x:200,y:70,  r:2.8,name:'κ',brightness:0.5,  col:'#FFE8B0'},
+    {x:220,y:170, r:3.2,name:'λ',brightness:0.6,  col:'#B8D0FF'},
+    {x:195,y:215, r:2.5,name:'μ',brightness:0.45, col:'#FFFFFF'},
+    {x:65, y:210, r:2.8,name:'ν',brightness:0.5,  col:'#B8FFD0'},
+    {x:40, y:155, r:3,  name:'ξ',brightness:0.52, col:'#FFE8B0'},
+    // Extra sparkle
+    {x:130,y:45,  r:2,  name:'o',brightness:0.4,  col:'#E0B8FF'},
+    {x:220,y:115, r:2,  name:'π',brightness:0.38, col:'#FFFFFF'},
+    {x:35, y:95,  r:2,  name:'ρ',brightness:0.42, col:'#B8D0FF'},
+    {x:130,y:225, r:2,  name:'σ',brightness:0.38, col:'#FFE8B0'},
+  ];
+
+  // Constellation edges — thin lines between stars
+  const EDGES=[
+    [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0], // main ring
+    [0,8],[1,9],[2,10],[3,11],[4,12],[5,13],          // outer spokes
+    [8,9],[13,12],[10,11],                             // outer connections
+    [0,14],[9,15],[8,16],[12,17],                      // tips
+  ];
+
+  // Each node has an orbital wobble offset
+  NODES.forEach((n,i)=>{
+    n.ox=n.x; n.oy=n.y;
+    n.wax=(Math.random()-.5)*10; // max x wobble
+    n.way=(Math.random()-.5)*10;
+    n.wfx=0.0008+Math.random()*0.0012;
+    n.wfy=0.0009+Math.random()*0.001;
+    n.wph=Math.random()*Math.PI*2;
+  });
+
+  // Shooting star state
+  let shoot={active:false,life:0,x:0,y:0,vx:0,vy:0,len:0};
+  function spawnShoot(){
+    const angle=Math.random()*Math.PI*2;
+    const speed=3+Math.random()*2.5;
+    shoot={active:true,life:1,x:Math.random()*W,y:Math.random()*H,vx:Math.cos(angle)*speed,vy:Math.sin(angle)*speed,len:40+Math.random()*60};
+    setTimeout(spawnShoot,2800+Math.random()*4000);
+  }
+  setTimeout(spawnShoot,1200);
+
+  // Energy pulse traveling along an edge
+  let pulse={edge:0,t:0,speed:0.012};
+
+  let t=0,_lastFrame=0;
+  function draw(now){
+    // Throttle to ~30fps for background canvas
+    if(now-_lastFrame<33){requestAnimationFrame(draw);return;}
+    _lastFrame=now;
+    ctx.clearRect(0,0,W,H);
+
+    // Update node positions with slow orbital drift
+    NODES.forEach((n,i)=>{
+      n.x=n.ox+Math.sin(t*n.wfx+n.wph)*n.wax;
+      n.y=n.oy+Math.cos(t*n.wfy+n.wph+1)*n.way;
+    });
+
+    // Center glow (breathing)
+    const breathe=0.04+Math.sin(t*.007)*0.025;
+    const cg=ctx.createRadialGradient(CX,CY,5,CX,CY,110);
+    cg.addColorStop(0,`rgba(160,100,255,${breathe})`);
+    cg.addColorStop(.5,`rgba(80,40,160,${breathe*.4})`);
+    cg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=cg;ctx.fillRect(0,0,W,H);
+
+    // Draw edges with shimmer and traveling energy pulse
+    pulse.t+=pulse.speed;
+    if(pulse.t>=1){pulse.t=0;pulse.edge=(pulse.edge+1)%EDGES.length;}
+
+    EDGES.forEach(([a,b],ei)=>{
+      const na=NODES[a],nb=NODES[b];
+      const shimmer=0.12+Math.sin(t*.009+a*0.8+b*0.5)*0.07;
+      // Guard: skip if same position (zero-length gradient crashes)
+      if(Math.abs(na.x-nb.x)<0.01&&Math.abs(na.y-nb.y)<0.01)return;
+      const grad=ctx.createLinearGradient(na.x,na.y,nb.x,nb.y);
+      grad.addColorStop(0,`rgba(212,168,67,${shimmer*na.brightness})`);
+      grad.addColorStop(.5,`rgba(245,216,130,${shimmer*1.4})`);
+      grad.addColorStop(1,`rgba(212,168,67,${shimmer*nb.brightness})`);
+      ctx.save();ctx.strokeStyle=grad;ctx.lineWidth=.7;
+      ctx.beginPath();ctx.moveTo(na.x,na.y);ctx.lineTo(nb.x,nb.y);ctx.stroke();ctx.restore();
+
+      // Energy bead traveling along this edge
+      if(ei===pulse.edge){
+        const px=na.x+(nb.x-na.x)*pulse.t;
+        const py=na.y+(nb.y-na.y)*pulse.t;
+        const pg=ctx.createRadialGradient(px,py,0,px,py,6);
+        pg.addColorStop(0,'rgba(255,240,180,0.95)');
+        pg.addColorStop(.5,'rgba(212,168,67,0.5)');
+        pg.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.save();ctx.fillStyle=pg;ctx.beginPath();ctx.arc(px,py,6,0,Math.PI*2);ctx.fill();ctx.restore();
+      }
+    });
+
+    // Draw star nodes
+    NODES.forEach((n,i)=>{
+      const osc=Math.sin(t*.013+i*0.7)*0.22;
+      const op=Math.max(0.18,n.brightness+osc);
+      const r=n.r*(1+Math.sin(t*.016+i)*.1);
+
+      // Outer glow
+      const gg=ctx.createRadialGradient(n.x,n.y,0,n.x,n.y,r*5.5);
+      gg.addColorStop(0,`rgba(255,255,255,${op*.32})`);
+      gg.addColorStop(.5,`rgba(212,168,67,${op*.1})`);
+      gg.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.save();ctx.fillStyle=gg;ctx.beginPath();ctx.arc(n.x,n.y,r*5.5,0,Math.PI*2);ctx.fill();ctx.restore();
+
+      // Core star
+      ctx.save();ctx.globalAlpha=op;ctx.fillStyle=n.col;
+      ctx.beginPath();ctx.arc(n.x,n.y,r,0,Math.PI*2);ctx.fill();ctx.restore();
+
+      // 4-point sparkle cross on bright stars
+      if(n.r>=4.5&&op>.65){
+        ctx.save();ctx.globalAlpha=op*.55;ctx.strokeStyle=n.col;ctx.lineWidth=.7;
+        const sl=r*3.5;
+        const sl2=r*1.8;
+        // Long arms
+        ctx.beginPath();ctx.moveTo(n.x-sl,n.y);ctx.lineTo(n.x+sl,n.y);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(n.x,n.y-sl);ctx.lineTo(n.x,n.y+sl);ctx.stroke();
+        // Diagonal short arms
+        ctx.globalAlpha=op*.25;
+        ctx.beginPath();ctx.moveTo(n.x-sl2*.7,n.y-sl2*.7);ctx.lineTo(n.x+sl2*.7,n.y+sl2*.7);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(n.x+sl2*.7,n.y-sl2*.7);ctx.lineTo(n.x-sl2*.7,n.y+sl2*.7);ctx.stroke();
+        ctx.restore();
+      }
+    });
+
+    // Shooting star
+    if(shoot.active){
+      const trailLen=60;
+      const tx=shoot.x-shoot.vx*trailLen;
+      const ty=shoot.y-shoot.vy*trailLen;
+      // Guard zero-length
+      if(Math.abs(tx-shoot.x)>0.5||Math.abs(ty-shoot.y)>0.5){
+        const sg=ctx.createLinearGradient(tx,ty,shoot.x,shoot.y);
+        sg.addColorStop(0,'rgba(255,255,255,0)');
+        sg.addColorStop(1,`rgba(255,240,200,${shoot.life*.9})`);
+        ctx.save();ctx.strokeStyle=sg;ctx.lineWidth=1.2;
+        ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(shoot.x,shoot.y);ctx.stroke();ctx.restore();
+      }
+      shoot.x+=shoot.vx;shoot.y+=shoot.vy;shoot.life-=0.025;
+      if(shoot.life<=0)shoot.active=false;
+    }
+
+    // Dashed orbit ring (breathing opacity)
+    ctx.save();ctx.globalAlpha=.06+Math.sin(t*.004)*.025;
+    ctx.strokeStyle='rgba(212,168,67,1)';ctx.lineWidth=.5;
+    ctx.setLineDash([3,9]);ctx.lineDashOffset=-t*.2;
+    ctx.beginPath();ctx.arc(CX,CY,118,0,Math.PI*2);ctx.stroke();
+    ctx.setLineDash([]);ctx.restore();
+
+    t++;requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ══════════════════════════════════════════════════
+// CURSOR
+// ══════════════════════════════════════════════════
+(function(){
+  const c=document.getElementById('cur'),t2=document.getElementById('cur2');
+  document.addEventListener('mousemove',e=>{
+    c.style.left=e.clientX+'px';c.style.top=e.clientY+'px';
+    setTimeout(()=>{t2.style.left=e.clientX+'px';t2.style.top=e.clientY+'px';},70);
+  });
+  document.addEventListener('click',e=>{
+    const r=document.createElement('div');r.className='ripple';
+    r.style.left=e.clientX+'px';r.style.top=e.clientY+'px';
+    document.body.appendChild(r);setTimeout(()=>r.remove(),700);
+  });
+})();
+
+// ══════════════════════════════════════════════════
+// PAGE TRANSITIONS — spectacular veil effect
+// ══════════════════════════════════════════════════
+function showPage(id, spectacular){
+  if(spectacular){
+    const veil=document.getElementById('page-veil');
+    const vcv=document.getElementById('veil-cv');
+    const ctx=vcv.getContext('2d');
+    let W=vcv.width=window.innerWidth,H=vcv.height=window.innerHeight;
+    const cx=W*.5,cy=H*.5;
+
+    // ── 八卦水墨渐隐过渡 Ba Gua Ink Fade Transition ──
+    const TRIGRAMS_ANI=['☰','☱','☲','☳','☴','☵','☶','☷'];
+    const INK_CHARS=['緣','福','壽','道','氣','化','玄','妙'];
+    const R_max=Math.max(W,H)*0.62;
+
+    // Ink wash particles expanding from center
+    const inkParts=Array.from({length:80},(_,i)=>{
+      const a=Math.random()*Math.PI*2;
+      const sp=1.8+Math.random()*4.5;
+      return {
+        x:cx+(Math.random()-.5)*10, y:cy+(Math.random()-.5)*10,
+        vx:Math.cos(a)*sp, vy:Math.sin(a)*sp,
+        r:2+Math.random()*6,
+        life:1, decay:0.012+Math.random()*0.018,
+        col:`rgba(${Math.random()>.7?'192,57,43':'139,105,20'}`,
+      };
+    });
+
+    // 8 radial ink strokes
+    const inkStrokes=Array.from({length:8},(_,i)=>({
+      angle:(i/8)*Math.PI*2,
+      len:0, maxLen:R_max,
+      speed:18+i*3,
+      life:1,
+    }));
+
+    // Trigram symbols flying outward
+    const triObjs=TRIGRAMS_ANI.map((sym,i)=>({
+      sym, x:cx, y:cy,
+      angle:(i/8)*Math.PI*2+(Math.PI/8),
+      r:0, targetR:R_max*.48,
+      speed:8+i*1.2,
+      size:28+Math.random()*14,
+      opacity:0, fadeIn:true,
+      spin:0, spinV:(Math.random()-.5)*.04,
+      life:1,
+    }));
+
+    // Expanding circle rings (ink brush style)
+    const inkRings=[
+      {r:0,max:R_max*.55,sp:14,lw:3,op:0.7},
+      {r:0,max:R_max*.82,sp:20,lw:1.5,op:0.4},
+      {r:0,max:R_max,sp:26,lw:0.8,op:0.25},
+    ];
+
+    // Center bagua wheel
+    let baguaRot=0;
+
+    veil.classList.add('flash');
+    let tf=0;
+    function vframe(){
+      // White paper fade-in bg
+      const fadeIn=Math.min(1,tf/8);
+      ctx.fillStyle=`rgba(253,250,245,${fadeIn*0.92})`;
+      ctx.fillRect(0,0,W,H);
+
+      // Ink wash overlay (slight dark smear at center)
+      if(tf<30){
+        const inkOp=(1-tf/30)*0.12;
+        const ig=ctx.createRadialGradient(cx,cy,0,cx,cy,R_max*.3);
+        ig.addColorStop(0,`rgba(26,18,8,${inkOp})`);
+        ig.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.fillStyle=ig; ctx.fillRect(0,0,W,H);
+      }
+
+      // Ink rings
+      inkRings.forEach(ri=>{
+        ri.r=Math.min(ri.max,ri.r+ri.sp);
+        const op=ri.op*Math.max(0,1-ri.r/ri.max)*Math.min(1,tf/6);
+        if(op<0.005)return;
+        ctx.save();
+        ctx.strokeStyle=`rgba(139,105,20,${op})`;
+        ctx.lineWidth=ri.lw*(1-ri.r/ri.max*.7);
+        // Slightly rough brush stroke
+        ctx.setLineDash([ri.r*.08,ri.r*.015]);
+        ctx.lineDashOffset=tf*2;
+        ctx.beginPath();ctx.arc(cx,cy,ri.r,0,Math.PI*2);ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      });
+
+      // Radial ink brush strokes
+      inkStrokes.forEach((s,si)=>{
+        s.len=Math.min(s.maxLen,s.len+s.speed);
+        const op=Math.max(0,0.35*(1-s.len/s.maxLen)*Math.min(1,tf/10));
+        if(s.len<2||op<0.005)return;
+        const ex=cx+Math.cos(s.angle)*s.len;
+        const ey=cy+Math.sin(s.angle)*s.len;
+        const sg=ctx.createLinearGradient(cx,cy,ex,ey);
+        sg.addColorStop(0,`rgba(139,105,20,${op*1.2})`);
+        sg.addColorStop(.5,`rgba(139,105,20,${op*.5})`);
+        sg.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.save();ctx.strokeStyle=sg;ctx.lineWidth=1.5-si*.1;
+        ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(ex,ey);ctx.stroke();ctx.restore();
+      });
+
+      // Ink particles
+      inkParts.forEach(p=>{
+        p.x+=p.vx;p.y+=p.vy;p.life-=p.decay;
+        if(p.life<=0)return;
+        const sz=p.r*(1+p.life*.3);
+        ctx.save();ctx.globalAlpha=p.life*0.55;
+        // Ink blob (irregular)
+        ctx.fillStyle=p.col+`,${p.life*.6})`;
+        ctx.beginPath();ctx.ellipse(p.x,p.y,sz,sz*.7,(p.x/W)*Math.PI,0,Math.PI*2);ctx.fill();
+        ctx.restore();
+      });
+
+      // 8 Trigram symbols expanding outward
+      triObjs.forEach((tri,i)=>{
+        tri.r=Math.min(tri.targetR,tri.r+tri.speed*(1-tri.r/tri.targetR*.5+.3));
+        tri.spin+=tri.spinV;
+        const opacity=Math.min(1,Math.max(0, tf>8?(tri.r/tri.targetR)*.9:0));
+        const fadeOut=tf>55?Math.max(0,1-(tf-55)/20):1;
+        if(opacity<0.01)return;
+        const tx=cx+Math.cos(tri.angle)*tri.r;
+        const ty=cy+Math.sin(tri.angle)*tri.r;
+        ctx.save();
+        ctx.globalAlpha=opacity*fadeOut;
+        ctx.translate(tx,ty);ctx.rotate(tri.spin);
+        ctx.font=`${tri.size}px serif`;
+        ctx.fillStyle='rgba(139,105,20,0.72)';
+        ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(tri.sym,0,0);
+        ctx.restore();
+      });
+
+      // Center rotating Ba Gua wheel
+      if(tf>4){
+        baguaRot+=0.06;
+        const wheelOp=Math.min(0.85,tf/15)*Math.max(0,tf>55?1-(tf-55)/25:1);
+        const wheelR=Math.min(72, tf*4.5);
+        ctx.save();ctx.globalAlpha=wheelOp;ctx.translate(cx,cy);ctx.rotate(baguaRot);
+        // Outer ring
+        ctx.strokeStyle='rgba(139,105,20,0.55)';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.arc(0,0,wheelR,0,Math.PI*2);ctx.stroke();
+        // Inner ring
+        ctx.strokeStyle='rgba(192,57,43,0.35)';ctx.lineWidth=0.8;
+        ctx.beginPath();ctx.arc(0,0,wheelR*.65,0,Math.PI*2);ctx.stroke();
+        // 8 spokes
+        TRIGRAMS_ANI.forEach((sym,i)=>{
+          const a=(i/8)*Math.PI*2;
+          ctx.strokeStyle='rgba(139,105,20,0.3)';ctx.lineWidth=0.7;
+          ctx.beginPath();ctx.moveTo(Math.cos(a)*wheelR*.65,Math.sin(a)*wheelR*.65);ctx.lineTo(Math.cos(a)*wheelR,Math.sin(a)*wheelR);ctx.stroke();
+          // Symbol
+          const fontSize=Math.max(8,wheelR*.22);
+          ctx.font=`${fontSize}px serif`;ctx.fillStyle='rgba(139,105,20,0.8)';
+          ctx.textAlign='center';ctx.textBaseline='middle';
+          ctx.fillText(sym,Math.cos(a)*wheelR*.82,Math.sin(a)*wheelR*.82);
+        });
+        // Yin-yang center
+        ctx.strokeStyle='rgba(139,105,20,0.5)';ctx.lineWidth=1.2;
+        ctx.beginPath();ctx.arc(0,0,wheelR*.28,0,Math.PI*2);ctx.stroke();
+        ctx.fillStyle='rgba(26,18,8,0.15)';ctx.beginPath();ctx.arc(0,-wheelR*.14,wheelR*.14,0,Math.PI*2);ctx.fill();
+        ctx.restore();
+      }
+
+      // Center ink char
+      if(tf>10&&tf<70){
+        const charOp=Math.min(1,(tf-10)/8)*Math.max(0,1-(tf-55)/15);
+        ctx.save();ctx.globalAlpha=charOp;
+        ctx.font=`bold ${Math.min(88,tf*5)}px 'Noto Serif SC',serif`;
+        ctx.fillStyle='rgba(26,18,8,0.18)';
+        ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText('緣',cx,cy);
+        ctx.restore();
+      }
+
+      // Red seal stamp flash
+      if(tf>15&&tf<45){
+        const sOp=Math.min(0.25,(tf-15)/10)*Math.max(0,1-(tf-35)/10);
+        const sSize=Math.min(60,tf*2.5);
+        ctx.save();ctx.globalAlpha=sOp;
+        ctx.strokeStyle='rgba(192,57,43,0.7)';ctx.lineWidth=2;
+        ctx.strokeRect(cx-sSize/2,cy-sSize/2,sSize,sSize);
+        ctx.restore();
+      }
+
+      tf++;if(tf<90)requestAnimationFrame(vframe);
+      // Final fade to white and switch
+    }
+    vframe();
+
+    setTimeout(()=>{
+      document.querySelectorAll('.pg').forEach(p=>{p.classList.remove('active','pg-enter');});
+      const pg=document.getElementById(id);
+      pg.classList.add('active');
+      void pg.offsetWidth;
+      pg.classList.add('pg-enter');
+      if(id==='p2b')setTimeout(()=>staggerChips(pg),300);
+      applyTheme(id);
+    },280);
+    setTimeout(()=>{veil.classList.remove('flash');},1800);
+  } else {
+    document.querySelectorAll('.pg').forEach(p=>{p.classList.remove('active','pg-enter');});
+    const pg=document.getElementById(id);
+    pg.classList.add('active');
+    void pg.offsetWidth;
+    pg.classList.add('pg-enter');
+    if(id==='p2b')setTimeout(()=>staggerChips(pg),100);
+    applyTheme(id);
+  }
+}
+
+// Page → theme mapping
+const PAGE_THEMES={p1:'theme-p1',p2:'theme-p2',p2b:'theme-p2b',p3:'theme-p3',p4:'theme-p4'};
+const TINT_GRADS={
+  p1:'radial-gradient(ellipse 85% 65% at 50% 25%, rgba(220,180,80,.07) 0%, transparent 70%)',
+  p2:'radial-gradient(ellipse 80% 60% at 45% 30%, rgba(200,160,60,.06) 0%, transparent 70%)',
+  p2b:'radial-gradient(ellipse 75% 58% at 40% 28%, rgba(180,140,55,.05) 0%, transparent 70%)',
+  p3:'radial-gradient(ellipse 70% 55% at 50% 38%, rgba(160,120,50,.05) 0%, transparent 70%)',
+  p4:'radial-gradient(ellipse 80% 60% at 50% 18%, rgba(200,170,80,.09) 0%, rgba(180,150,60,.04) 50%, transparent 75%)',
+};
+function applyTheme(id){
+  const body=document.body;
+  Object.values(PAGE_THEMES).forEach(t=>body.classList.remove(t));
+  const cls=PAGE_THEMES[id];
+  if(cls)setTimeout(()=>body.classList.add(cls),10);
+  const tint=document.getElementById('page-tint');
+  if(tint&&TINT_GRADS[id])tint.style.background=TINT_GRADS[id];
+  // Update galaxy halo color theme index
+  const themeOrder={p1:0,p2:1,p2b:2,p3:3,p4:4};
+  if(window._setHaloTheme&&themeOrder[id]!==undefined)window._setHaloTheme(themeOrder[id]);
+}
+// Apply initial theme
+applyTheme('p1');
+// P1 is already visible (active class set in HTML), no pg-enter needed on first load
+
+// Stagger chip animations when p2b is shown
+function staggerChips(pgEl){
+  const chips=pgEl.querySelectorAll('.chip');
+  chips.forEach((c,i)=>{
+    c.style.opacity='0';
+    setTimeout(()=>{
+      c.style.transition='opacity .35s, transform .35s';
+      c.style.transform='scale(.88)';
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        c.style.opacity='1';
+        c.style.transform='scale(1)';
+      }));
+    }, 280 + i*60);
+  });
+}
+
+// ══════════════════════════════════════════════════
+// EVENT LISTENERS — direct binding, not inline
+// ══════════════════════════════════════════════════
+document.getElementById('btn-start').addEventListener('click',()=>showPage('p2',true));
+document.getElementById('btn-p2next').addEventListener('click',()=>{
+  const bday=document.getElementById('bday').value;
+  if(!bday){
+    const inp=document.getElementById('bday');
+    inp.style.borderColor='rgba(255,100,100,.7)';
+    inp.style.boxShadow='0 0 20px rgba(255,80,80,.2)';
+    setTimeout(()=>{inp.style.borderColor='';inp.style.boxShadow='';},1400);
+    return;
+  }
+  showPage('p2b',false);
+});
+document.getElementById('btn-p2back').addEventListener('click',()=>showPage('p1',false));
+document.getElementById('btn-p2bnext').addEventListener('click',()=>{
+  if(!wish){
+    document.querySelectorAll('.chip').forEach(c=>{
+      c.style.borderColor='rgba(255,100,100,.5)';
+      setTimeout(()=>{c.style.borderColor='';},1200);
+    });
+    return;
+  }
+  showPage('p3',false);
+});
+document.getElementById('btn-p2bback').addEventListener('click',()=>showPage('p2',false));
+document.getElementById('btn-forge').addEventListener('click',showRitual);
+document.getElementById('btn-p3back').addEventListener('click',()=>showPage('p2b',false));
+document.getElementById('btn-copy').addEventListener('click',copyFate);
+document.getElementById('btn-restart').addEventListener('click',restartAll);
+
+// Recipient cards
+document.getElementById('rcards').addEventListener('click',e=>{
+  const card=e.target.closest('.rcard');
+  if(!card)return;
+  document.querySelectorAll('.rcard').forEach(c=>c.classList.remove('sel'));
+  card.classList.add('sel');
+  recipient=card.dataset.val;
+});
+
+// Gender buttons
+document.getElementById('gbts').addEventListener('click',e=>{
+  const btn=e.target.closest('.gbt');
+  if(!btn)return;
+  document.querySelectorAll('.gbt').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  gender=btn.dataset.val;
+});
+
+function selW(el,v){
+  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');wish=v;
+}
+
+// ══════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════
+function getZodiac(y){return ZODIACS[ZO[(y-4+400)%12]];}
+function getElement(y){return EL10[((y%10)+10)%10];}
+
+function buildBeads(month,year){
+  const comp=(WISH_MAP[wish]||[2,5,9]).slice();
+  const chosen=[month];
+  for(const c of comp){if(!chosen.includes(c)&&chosen.length<4)chosen.push(c);}
+  const rest=Object.keys(STONES).map(Number).filter(k=>!chosen.includes(k));
+  for(let i=rest.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rest[i],rest[j]]=[rest[j],rest[i]];}
+  while(chosen.length<6)chosen.push(rest.shift());
+  const cr=chosen.slice(0,6).map(m=>({...STONES[m],type:'crystal'}));
+  const jade={...JADES[(year+month)%JADES.length],type:'jade'};
+  const gold={...GOLDS[(year*month)%GOLDS.length],type:'gold',color:'#A87820',glow:'#FFD060'};
+  return[cr[0],cr[1],cr[2],jade,cr[3],cr[4],gold,cr[5],
+    {name:'Gold Bead',cn:'金珠',color:'#A87820',glow:'#FFD060',type:'tiny',meaning:'Connector',why:'Gold beads unify all stone energies, creating a harmonious Qi circuit.',small:true},
+    {name:'Gold Bead',cn:'金珠',color:'#A87820',glow:'#FFD060',type:'tiny',meaning:'Connector',why:'Gold beads unify all stone energies, creating a harmonious Qi circuit.',small:true},
+  ];
+}
+
+// ══════════════════════════════════════════════════
+// RITUAL SCREEN
+// ══════════════════════════════════════════════════
+function showRitual(){
+  if(!document.getElementById('bday').value){alert('Please enter your birth date.');return;}
+  if(!wish){alert('Please choose what you are manifesting.');return;}
+  if(!recipient){alert('Please choose the recipient.');return;}
+  if(!gender){alert('Please choose the energy type.');return;}
+
+  const date=new Date(document.getElementById('bday').value);
+  const month=date.getMonth()+1,year=date.getFullYear();
+  const tIdx=(month+year)%TRIGRAMS.length;
+  curTrigram=TRIGRAMS[tIdx];
+
+  document.getElementById('rt-trig').textContent=curTrigram.sym;
+  document.getElementById('rt-tname').textContent=curTrigram.name;
+  document.getElementById('rt-desc').textContent=curTrigram.why+' Three sacred coordinates have emerged from your energy field.';
+
+  ritualLit=0;
+  document.querySelectorAll('.rpt-pip').forEach(p=>p.classList.remove('lit'));
+  document.querySelectorAll('.rpt').forEach(p=>p.remove());
+
+  setupRitualPoints();
+  startRitualCanvas();
+  document.getElementById('ritual-screen').classList.add('on');
+}
+
+function setupRitualPoints(){
+  const W=window.innerWidth,H=window.innerHeight;
+  const labels=['☰ Heaven','☵ Earth','☷ Humanity'];
+  const positions=[
+    // Firmly top-left corner
+    {x:.10+Math.random()*.08, y:.10+Math.random()*.08},
+    // Firmly top-right corner
+    {x:.80+Math.random()*.08, y:.10+Math.random()*.08},
+    // Bottom-center — well below text block
+    {x:.42+Math.random()*.16, y:.84+Math.random()*.06},
+  ];
+  // Store positions for canvas drawing
+  window._ritualPositions=positions.map(p=>({px:p.x*W,py:p.y*H}));
+  window._ritualLitFlags=[false,false,false];
+
+  const rs=document.getElementById('ritual-screen');
+  positions.forEach((pos,i)=>{
+    const el=document.createElement('div');
+    el.className='rpt';
+    el.style.left=(pos.x*W-34)+'px';
+    el.style.top=(pos.y*H-34)+'px';
+    el.innerHTML=`
+  <div class="rpt-ring"></div>
+  <div class="rpt-ring rpt-ring2"></div>
+  <div class="rpt-dot"></div>
+  <div class="rpt-lbl">${labels[i]}</div>
+  <div class="rpt-sublbl">${['☰ Touch','☵ Touch','☷ Touch'][i]}</div>
+`;
+    el.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(el.classList.contains('lit'))return;
+      el.classList.add('lit');
+      window._ritualLitFlags[i]=true;
+      ritualLit++;
+      document.querySelectorAll('.rpt-pip')[ritualLit-1].classList.add('lit');
+      // Ripple at point
+      const r2=document.createElement('div');r2.className='ripple';
+      r2.style.cssText=`left:${pos.x*W}px;top:${pos.y*H}px;border-color:var(--gold2);width:12px;height:12px;`;
+      document.body.appendChild(r2);setTimeout(()=>r2.remove(),700);
+      if(ritualLit>=3){
+        setTimeout(()=>{
+          document.getElementById('ritual-screen').classList.remove('on');
+          document.querySelectorAll('.rpt').forEach(p=>p.remove());
+          // remove finger hint
+          const fh=document.getElementById('finger-hint');if(fh)fh.remove();
+          showPage('p4',false);
+          setTimeout(runLoading,600);
+        },900);
+      }
+    });
+    rs.appendChild(el);
+  });
+
+  // Animated finger hint — shows near first unlit point, bounces
+  const hint=document.createElement('div');
+  hint.id='finger-hint';
+  hint.innerHTML=`<svg width="40" height="52" viewBox="0 0 40 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 48 C10 44 6 36 6 28 L6 14 C6 10 9 8 12 8 C12 8 12 6 14 5 C17 4 19 6 20 8 C21 6 23 4 26 5 C28 6 28 8 28 8 C31 8 34 10 34 14 L34 28 C34 36 30 44 20 48Z" fill="rgba(255,230,150,0.18)" stroke="rgba(255,230,150,0.55)" stroke-width="1.2"/>
+    <circle cx="20" cy="9" r="3" fill="rgba(255,230,150,0.35)"/>
+    <path d="M14 9 L14 20" stroke="rgba(255,230,150,0.25)" stroke-width="1" stroke-linecap="round"/>
+    <path d="M26 9 L26 20" stroke="rgba(255,230,150,0.25)" stroke-width="1" stroke-linecap="round"/>
+  </svg>`;
+  hint.style.cssText=`position:fixed;z-index:15;pointer-events:none;opacity:0;transition:opacity .5s;animation:finger-bounce 1.2s ease-in-out infinite;`;
+  document.head.insertAdjacentHTML('beforeend',`<style>@keyframes finger-bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}</style>`);
+  document.body.appendChild(hint);
+
+  // Position near first point
+  const fp=positions[0];
+  hint.style.left=(fp.x*W+32)+'px';
+  hint.style.top=(fp.y*H-10)+'px';
+  setTimeout(()=>{hint.style.opacity='1';},800);
+
+  // Move hint to next unlit point after each tap
+  function updateHint(){
+    const nextIdx=window._ritualLitFlags.findIndex(f=>!f);
+    if(nextIdx===-1){hint.style.opacity='0';return;}
+    const np=positions[nextIdx];
+    hint.style.transition='left .6s cubic-bezier(.34,1.56,.64,1), top .6s cubic-bezier(.34,1.56,.64,1), opacity .4s';
+    hint.style.left=(np.x*W+32)+'px';
+    hint.style.top=(np.y*H-10)+'px';
+  }
+  document.querySelectorAll('.rpt').forEach(el=>{
+    el.addEventListener('click',()=>setTimeout(updateHint,200),{passive:true});
+  });
+}
+
+let ritualAnimRunning=false;
+function startRitualCanvas(){
+  const cvs=document.getElementById('rc');
+  const ctx=cvs.getContext('2d');
+  let W=cvs.width=window.innerWidth,H=cvs.height=window.innerHeight;
+  ritualAnimRunning=true;
+  let rt=0;
+
+  const parts=Array.from({length:40},()=>({
+    x:Math.random()*W,y:Math.random()*H,
+    vx:(Math.random()-.5)*.35,vy:-.12-Math.random()*.45,
+    r:Math.random()*1.8+.25,
+    col:['rgba(180,140,60,.5)','rgba(107,80,16,.4)','rgba(150,120,50,.45)','rgba(60,42,12,.3)'][Math.floor(Math.random()*7)],
+    op:.15+Math.random()*.45,
+  }));
+
+  // Connection line state: animated energy bead traveling along each line
+  const connBeads=[{t:0,speed:.012},{t:.33,speed:.014},{t:.66,speed:.011}];
+
+  function frame(){
+    if(!ritualAnimRunning)return;
+    ctx.clearRect(0,0,W,H);
+
+    // Soft radial glow
+    const grd=ctx.createRadialGradient(W*.5,H*.4,0,W*.5,H*.4,W*.5);
+    grd.addColorStop(0,'rgba(180,140,60,.05)');grd.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=grd;ctx.fillRect(0,0,W,H);
+
+    // === Draw glowing connection lines between lit points ===
+    const litEls=[...document.querySelectorAll('.rpt.lit')];
+    const litPos=litEls.map(el=>{
+      const r=el.getBoundingClientRect();
+      return {x:r.left+22,y:r.top+22};
+    });
+
+    if(litPos.length>=2){
+      for(let a=0;a<litPos.length;a++){
+        for(let b=a+1;b<litPos.length;b++){
+          const pa=litPos[a],pb=litPos[b];
+          const pulse=0.3+Math.sin(rt*.04+a+b)*.15;
+
+          // Outer wide glow line
+          ctx.save();
+          const lg=ctx.createLinearGradient(pa.x,pa.y,pb.x,pb.y);
+          lg.addColorStop(0,`rgba(139,105,20,${pulse*.5})`);
+          lg.addColorStop(.5,`rgba(180,140,40,${pulse*.8})`);
+          lg.addColorStop(1,`rgba(139,105,20,${pulse*.5})`);
+          ctx.strokeStyle=lg;ctx.lineWidth=6;ctx.globalAlpha=0.3;
+          ctx.shadowBlur=18;ctx.shadowColor='rgba(212,168,67,.6)';
+          ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);ctx.stroke();
+          ctx.restore();
+
+          // Core bright line
+          ctx.save();
+          const lg2=ctx.createLinearGradient(pa.x,pa.y,pb.x,pb.y);
+          lg2.addColorStop(0,`rgba(180,140,40,${pulse*.8})`);
+          lg2.addColorStop(.5,'rgba(200,160,60,.9)');
+          lg2.addColorStop(1,`rgba(180,140,40,${pulse*.8})`);
+          ctx.strokeStyle=lg2;ctx.lineWidth=1.2;ctx.globalAlpha=pulse*.8;
+          ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);ctx.stroke();
+          ctx.restore();
+
+          // Dashed energy overlay
+          ctx.save();ctx.setLineDash([6,8]);ctx.lineDashOffset=-rt*.8;
+          ctx.strokeStyle=`rgba(255,255,200,${pulse*.4})`;ctx.lineWidth=.8;
+          ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);ctx.stroke();
+          ctx.setLineDash([]);ctx.restore();
+
+          // Traveling energy bead on each connection
+          const cb=connBeads[(a+b)%connBeads.length];
+          cb.t=(cb.t+cb.speed)%1;
+          const bx=pa.x+(pb.x-pa.x)*cb.t;
+          const by=pa.y+(pb.y-pa.y)*cb.t;
+          const bg=ctx.createRadialGradient(bx,by,0,bx,by,10);
+          bg.addColorStop(0,'rgba(255,255,200,0.95)');
+          bg.addColorStop(.4,'rgba(212,168,67,0.5)');
+          bg.addColorStop(1,'rgba(0,0,0,0)');
+          ctx.save();ctx.fillStyle=bg;ctx.beginPath();ctx.arc(bx,by,10,0,Math.PI*2);ctx.fill();ctx.restore();
+        }
+      }
+    }
+
+    // If all 3 lit — draw triangle with extra golden fill
+    if(litPos.length===3){
+      ctx.save();
+      ctx.beginPath();ctx.moveTo(litPos[0].x,litPos[0].y);ctx.lineTo(litPos[1].x,litPos[1].y);ctx.lineTo(litPos[2].x,litPos[2].y);ctx.closePath();
+      const tFill=ctx.createLinearGradient(litPos[0].x,litPos[0].y,litPos[2].x,litPos[2].y);
+      tFill.addColorStop(0,'rgba(212,168,67,0.04)');
+      tFill.addColorStop(.5,'rgba(180,100,255,0.06)');
+      tFill.addColorStop(1,'rgba(212,168,67,0.04)');
+      ctx.fillStyle=tFill;ctx.fill();ctx.restore();
+    }
+
+    // Floating particles
+    parts.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.y<-10){p.y=H+10;p.x=Math.random()*W;}
+      ctx.save();ctx.globalAlpha=p.op*(0.6+Math.sin(rt*.02+p.x)*.4);
+      ctx.fillStyle=p.col;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.restore();
+    });
+
+    rt++;requestAnimationFrame(frame);
+  }
+  frame();
+
+  const rs=document.getElementById('ritual-screen');
+  const stopAnim=()=>{ritualAnimRunning=false;rs.removeEventListener('transitionend',stopAnim);};
+  rs.addEventListener('transitionend',stopAnim);
+}
+
+// ══════════════════════════════════════════════════
+// LOADING
+// ══════════════════════════════════════════════════
+function runLoading(){
+  const date=new Date(document.getElementById('bday').value);
+  const month=date.getMonth()+1,year=date.getFullYear();
+  allBeads=buildBeads(month,year);
+
+  // Animated loading orb — orbiting crystal beads
+  (function startOrb(){
+    const cvs=document.getElementById('load-orb-cv');
+    if(!cvs)return;
+    const ctx=cvs.getContext('2d');
+    // W,H,cx,cy defined below
+    const ORB_COLS=['#C0392B','#D4A843','#2E86C1','#27AE60','#8E44AD','#E74C3C','#E67E22','#16A085','#8B6914'];
+    const orbs=Array.from({length:9},(_,i)=>({
+      angle:(i/9)*Math.PI*2,
+      r:52+Math.sin(i)*8,
+      speed:.012+i*.0015,
+      col:ORB_COLS[i],
+      size:4+Math.random()*3,
+    }));
+    let orbT=0,orbRunning=true;
+    const W=160,H=160,cx=80,cy=80;
+    cvs._orbStop=()=>{orbRunning=false;};
+    function orbFrame(){
+      if(!orbRunning)return;
+      ctx.clearRect(0,0,W,H);
+      // Center glow
+      const cg=ctx.createRadialGradient(cx,cy,2,cx,cy,35);
+      cg.addColorStop(0,'rgba(180,140,60,.35)');
+      cg.addColorStop(.5,'rgba(139,105,20,.1)');
+      cg.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=cg;ctx.fillRect(0,0,W,H);
+      // Outer ring
+      ctx.save();ctx.strokeStyle='rgba(180,140,60,.2)';ctx.lineWidth=.5;
+      ctx.setLineDash([3,6]);ctx.lineDashOffset=-orbT*1.2;
+      ctx.beginPath();ctx.arc(cx,cy,56,0,Math.PI*2);ctx.stroke();
+      ctx.setLineDash([]);ctx.restore();
+      // Orbiting beads
+      orbs.forEach(o=>{
+        o.angle+=o.speed;
+        const bx=cx+Math.cos(o.angle)*o.r;
+        const by=cy+Math.sin(o.angle)*o.r*.7;
+        const bg=ctx.createRadialGradient(bx,by,0,bx,by,o.size*3);
+        bg.addColorStop(0,(o.col||'#888888')+'CC');bg.addColorStop(1,'rgba(0,0,0,0)');
+        ctx.save();ctx.fillStyle=bg;ctx.beginPath();ctx.arc(bx,by,o.size*3,0,Math.PI*2);ctx.fill();ctx.restore();
+        ctx.save();ctx.fillStyle=o.col;ctx.beginPath();ctx.arc(bx,by,o.size,0,Math.PI*2);ctx.fill();ctx.restore();
+        ctx.save();ctx.fillStyle='rgba(255,255,255,.55)';
+        ctx.beginPath();ctx.arc(bx-o.size*.3,by-o.size*.3,o.size*.38,0,Math.PI*2);ctx.fill();ctx.restore();
+      });
+      // Center dot
+      ctx.save();ctx.fillStyle='rgba(139,105,20,.7)';ctx.beginPath();ctx.arc(cx,cy,5,0,Math.PI*2);ctx.fill();ctx.restore();
+      ctx.save();ctx.fillStyle='rgba(255,255,255,.55)';ctx.beginPath();ctx.arc(cx-1,cy-1,1.2,0,Math.PI*2);ctx.fill();ctx.restore();
+      orbT++;requestAnimationFrame(orbFrame);
+    }
+    orbFrame();
+  })();
+
+  const pf=document.getElementById('pfill'),ls=document.getElementById('ls');
+  const lt=document.getElementById('lt');
+  let step=0;
+  const iv=setInterval(()=>{
+    if(step>=LOAD_STEPS.length){
+      clearInterval(iv);
+      const cvs=document.getElementById('load-orb-cv');
+      if(cvs&&cvs._orbStop)cvs._orbStop();
+      setTimeout(()=>startReveal(month,year),500);
+      return;
+    }
+    const s=LOAD_STEPS[step];
+    pf.style.width=((step+1)/LOAD_STEPS.length*100)+'%';
+    lt.textContent=s.title;
+    ls.style.opacity=0;setTimeout(()=>{ls.textContent=s.step;ls.style.opacity=1;},260);
+    step++;
+  },1400);
+}
+
+// ══════════════════════════════════════════════════
+// BEAD REVEAL
+// ══════════════════════════════════════════════════
+function startReveal(month,year){
+  revBeads=allBeads.filter(b=>!b.small);
+  revIdx=0;
+  document.getElementById('bro').classList.add('on');
+  document.getElementById('bro').onclick=()=>advReveal(month,year);
+  showRevCard(0);
+}
+function advReveal(month,year){
+  revIdx++;
+  if(revIdx<revBeads.length)showRevCard(revIdx);
+  else{
+    document.getElementById('bro').classList.remove('on');
+    if(_broPartAF){cancelAnimationFrame(_broPartAF);_broPartAF=null;}
+    showVictory(()=>showResult(month,year));
+  }
+}
+function showRevCard(idx){
+  const b=revBeads[idx],tot=revBeads.length;
+  const brc=document.querySelector('.brc');
+  brc.style.transition='opacity .18s,transform .2s';
+  brc.style.opacity='0';brc.style.transform='scale(.93) translateY(16px)';
+
+  // Start/update particle canvas
+  startBroParticles(b.glow,b.color);
+
+  setTimeout(()=>{
+    document.getElementById('brc-num').textContent='Stone '+(idx+1)+' of '+tot;
+
+    // Typewriter name
+    const nameEl=document.getElementById('brc-name');
+    nameEl.textContent='';nameEl.style.opacity='1';
+    const nameStr=b.name;let ni=0;
+    const niv=setInterval(()=>{nameEl.textContent+=nameStr[ni++];if(ni>=nameStr.length)clearInterval(niv);},38);
+
+    const cnEl=document.getElementById('brc-cn');
+    const whyEl=document.getElementById('brc-why');
+    cnEl.style.opacity='0';whyEl.style.opacity='0';
+    cnEl.textContent=(b.cn||'')+' · '+(b.meaning||'');
+    whyEl.textContent=b.why;
+    setTimeout(()=>{cnEl.style.transition='opacity .5s .15s';cnEl.style.opacity='1';},80);
+    setTimeout(()=>{whyEl.style.transition='opacity .6s .3s';whyEl.style.opacity='1';},120);
+
+    const dr=document.getElementById('brd-row');dr.innerHTML='';
+    for(let i=0;i<tot;i++){const d=document.createElement('div');d.className='brd'+(i<idx?' d':i===idx?' c':'');dr.appendChild(d);}
+
+    setRevealBg(b.glow,b.color);
+    drawGem3D(b.color,b.glow,b.type||'crystal');
+
+    // Elastic card entrance
+    brc.style.transition='opacity .42s,transform .5s cubic-bezier(.15,.85,.2,1.15)';
+    brc.style.opacity='1';brc.style.transform='scale(1) translateY(0)';
+  },220);
+}
+
+// Ambient floating particles behind the reveal card
+let _broPartAF=null;
+function startBroParticles(glowHex,colHex){
+  const cvs=document.getElementById('bro-particles');
+  if(!cvs)return;
+  if(_broPartAF){cancelAnimationFrame(_broPartAF);_broPartAF=null;}
+  // Lighter particles on white bg
+  const ctx=cvs.getContext('2d');
+  cvs.width=window.innerWidth;cvs.height=window.innerHeight;
+  const W=cvs.width,H=cvs.height;
+
+  function hx(h){const s=h.replace('#','');return[parseInt(s.slice(0,2),16),parseInt(s.slice(2,4),16),parseInt(s.slice(4,6),16)];}
+  const [gr,gg,gb]=hx(glowHex);
+  const [cr,cg,cb]=hx(colHex);
+
+  // Create particles
+  const PARTS=60;
+  const parts=Array.from({length:PARTS},(_,i)=>({
+    x:Math.random()*W,
+    y:H+Math.random()*H*.5,
+    vx:(Math.random()-.5)*.6,
+    vy:-(.4+Math.random()*.8),
+    r:.8+Math.random()*2.2,
+    op:Math.random()*.7+.15,
+    col:Math.random()<.6?`rgba(${gr},${gg},${gb},1)`:`rgba(${cr},${cg},${cb},1)`,
+    life:Math.random(),
+    decay:.002+Math.random()*.004,
+    twinkle:Math.random()*Math.PI*2,
+  }));
+
+  // Bokeh orbs (large soft glows)
+  const BOKEH=8;
+  const boks=Array.from({length:BOKEH},(_,i)=>({
+    x:Math.random()*W,y:Math.random()*H,
+    r:60+Math.random()*80,
+    op:.04+Math.random()*.06,
+    dx:(Math.random()-.5)*.3,dy:(Math.random()-.5)*.2,
+    phase:Math.random()*Math.PI*2,
+    col:Math.random()<.5?[gr,gg,gb]:[cr,cg,cb],
+  }));
+
+  let pt=0;
+  function frame(){
+    ctx.clearRect(0,0,W,H);
+
+    // Bokeh
+    boks.forEach(b=>{
+      b.x+=b.dx;b.y+=b.dy;
+      if(b.x<-b.r)b.x=W+b.r;if(b.x>W+b.r)b.x=-b.r;
+      if(b.y<-b.r)b.y=H+b.r;if(b.y>H+b.r)b.y=-b.r;
+      const pulse=Math.sin(pt*.012+b.phase)*.02;
+      const bg=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,b.r*(1+pulse));
+      bg.addColorStop(0,`rgba(${b.col[0]},${b.col[1]},${b.col[2]},${b.op*(1+pulse*3)})`);
+      bg.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=bg;ctx.beginPath();ctx.arc(b.x,b.y,b.r*(1+pulse),0,Math.PI*2);ctx.fill();
+    });
+
+    // Rising particles
+    parts.forEach(p=>{
+      p.x+=p.vx+Math.sin(pt*.018+p.twinkle)*.3;
+      p.y+=p.vy;
+      p.twinkle+=.03;
+      if(p.y<-10){p.y=H+10;p.x=Math.random()*W;}
+      const flicker=.6+Math.sin(pt*.08+p.twinkle)*.4;
+      ctx.save();ctx.globalAlpha=p.op*flicker;
+      ctx.fillStyle=p.col;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+      // Sparkle cross on larger particles
+      if(p.r>1.8){
+        ctx.strokeStyle=p.col;ctx.lineWidth=.5;ctx.globalAlpha=p.op*flicker*.5;
+        const sl=p.r*2.5;
+        ctx.beginPath();ctx.moveTo(p.x-sl,p.y);ctx.lineTo(p.x+sl,p.y);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(p.x,p.y-sl);ctx.lineTo(p.x,p.y+sl);ctx.stroke();
+      }
+      ctx.restore();
+    });
+
+    pt++;_broPartAF=requestAnimationFrame(frame);
+  }
+  frame();
+}
+
+// Per-stone ambient background glow
+function setRevealBg(glow,col){
+  let ov=document.getElementById('rev-glow-ov');
+  if(!ov){
+    ov=document.createElement('div');ov.id='rev-glow-ov';
+    ov.style.cssText='position:absolute;top:0;right:0;bottom:0;left:0;z-index:1;pointer-events:none;transition:background 1.2s ease;';
+    document.getElementById('bro').appendChild(ov);
+  }
+  const h=glow.replace('#','');
+  const r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),bv=parseInt(h.slice(4,6),16);
+  ov.style.background=`radial-gradient(ellipse 75% 55% at 50% 30%, rgba(${r},${g},${bv},0.08) 0%, rgba(${r},${g},${bv},0.03) 50%, transparent 80%)`;
+  // Set CSS custom property for gem halo
+  document.getElementById('bro').style.setProperty('--glow-col', `rgba(${r},${g},${bv},0.25)`);
+  document.querySelector('#gem-cv').style.setProperty('--glow-col', `rgba(${r},${g},${bv},0.3)`);
+  document.querySelector('.gem-wrap').style.setProperty('--glow-col', `rgba(${r},${g},${bv},0.18)`);
+}
+
+function drawGem3D(col, glow, type) {
+  const cvs = document.getElementById('gem-cv');
+  if (!cvs) return;
+  if (cvs._af) cancelAnimationFrame(cvs._af);
+
+  // ── Safe gradient wrapper (idempotent) ──
+  if (!CanvasRenderingContext2D.prototype._rtSafe) {
+    const _l = CanvasRenderingContext2D.prototype.createLinearGradient;
+    const _r = CanvasRenderingContext2D.prototype.createRadialGradient;
+    const ok = (...v) => v.every(x => Number.isFinite(x));
+    const dummy = ctx => { const g = _l.call(ctx,0,0,1,0); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,0)'); return g; };
+    CanvasRenderingContext2D.prototype.createLinearGradient = function(...a) { return ok(...a) ? _l.apply(this,a) : dummy(this); };
+    CanvasRenderingContext2D.prototype.createRadialGradient = function(...a) { return (ok(...a) && a[2]>=0 && a[5]>=0) ? _r.apply(this,a) : dummy(this); };
+    CanvasRenderingContext2D.prototype._rtSafe = true;
+  }
+
+  // Parse hex color → {r,g,b}
+  function hexRgb(h) {
+    const s = h.replace('#','');
+    return { r: parseInt(s.slice(0,2),16), g: parseInt(s.slice(2,4),16), b: parseInt(s.slice(4,6),16) };
+  }
+  const gemCol = hexRgb(col);
+
+  // Per-type config
+  const cfgMap = {
+    crystal: { ior: 1.65, dn: 4.5 },
+    jade:    { ior: 1.66, dn: 6.5 },
+    gold:    { ior: null, dn: 0   },
+    tiny:    { ior: 1.55, dn: 3.5 },
+  };
+  const cfg = cfgMap[type] || cfgMap.crystal;
+
+  // ── Vector math ──
+  const dot     = (a,b) => a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+  const add3    = (a,b) => [a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+  const scale3  = (a,s) => [a[0]*s,a[1]*s,a[2]*s];
+  function norm(v) { const l=Math.sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]); return l<1e-9?[0,0,1]:[v[0]/l,v[1]/l,v[2]/l]; }
+  function reflect(I,N) { const d=2*dot(I,N); return norm([I[0]-N[0]*d,I[1]-N[1]*d,I[2]-N[2]*d]); }
+  function refractV(I,N,eta) {
+    const cosI=-dot(N,I), sin2=eta*eta*(1-cosI*cosI);
+    if(sin2>1) return null;
+    const cosT=Math.sqrt(1-sin2);
+    return norm([I[0]*eta+N[0]*(eta*cosI-cosT),I[1]*eta+N[1]*(eta*cosI-cosT),I[2]*eta+N[2]*(eta*cosI-cosT)]);
+  }
+  function sphereHit(O,D,R) {
+    const b=2*dot(D,O), disc=b*b-4*(dot(O,O)-R*R);
+    if(disc<0) return null;
+    const sq=Math.sqrt(disc);
+    const t0=(-b-sq)*.5, t1=(-b+sq)*.5;
+    if(t1<.001) return null;
+    return [Math.max(t0,.001),t1];
+  }
+  function fresnelS(cosI,n1,n2) { let r0=(n1-n2)/(n1+n2); r0*=r0; return r0+(1-r0)*Math.pow(1-cosI,5); }
+
+  // ── Environment maps (neutral white studio) ──
+  function envStudio(D, L) {
+    const up=D[1], base=0.90+up*0.08;
+    const sun=Math.pow(Math.max(0,dot(D,scale3(L,-1))),32)*0.65;
+    const v=Math.min(1, base+sun);
+    return [v,v,v];
+  }
+  function envBehind(D, L) {
+    const base=0.94+D[1]*0.04;
+    const sunDot=Math.max(0,dot(D,scale3(L,-1)));
+    const caustic=Math.pow(sunDot,42)*1.3;
+    const gw=Math.pow(sunDot,6)*0.12;
+    const v=Math.min(1.4, base+caustic+gw);
+    return [v,v,v];
+  }
+  function envGold(D, L) {
+    const up=D[1], base=0.82+up*0.12;
+    const r=Math.min(1,base+0.08), g=Math.min(1,base+0.02), bv=Math.max(0,base-0.14);
+    const sun=Math.pow(Math.max(0,dot(D,scale3(L,-1))),55)*1.6;
+    return [Math.min(1,r+sun), Math.min(1,g+sun*0.88), Math.min(1,bv+sun*0.45)];
+  }
+  function specHL(N,V,L,power,str) {
+    const H=norm(add3(V,scale3(L,-1)));
+    return Math.pow(Math.max(0,dot(N,H)),power)*str;
+  }
+
+  // ── Crystal shader ──
+  function shadeGlass(P,N,V,rayDir,t0,t1,L,cr,cg,cb,ior,dn) {
+    const cosI=Math.abs(dot(N,V));
+    const F=fresnelS(cosI,1.0,ior);
+    const Tdir=refractV(rayDir,N,1.0/ior);
+    let trans=[1,1,1];
+    if(Tdir){
+      const bk=sphereHit(P,Tdir,1.0);
+      const pLen=bk?bk[1]:(t1-t0);
+      const P2=add3(P,scale3(Tdir,pLen-.0005));
+      const N2=norm(scale3(P2,-1));
+      const T2=refractV(Tdir,N2,ior);
+      const sat=Math.min(1.0, dn*pLen*0.35);
+      const tR=1-(sat*(1-cr)), tG=1-(sat*(1-cg)), tB=1-(sat*(1-cb));
+      if(T2){ const bg=envBehind(T2,L); trans=[bg[0]*tR,bg[1]*tG,bg[2]*tB]; }
+      else { trans=[tR*.92,tG*.92,tB*.92]; }
+      const focus=Math.max(0,dot(Tdir,scale3(L,-1)));
+      const glow=Math.pow(focus,8)*0.26*sat;
+      trans[0]=Math.min(1,trans[0]+glow*cr);
+      trans[1]=Math.min(1,trans[1]+glow*cg);
+      trans[2]=Math.min(1,trans[2]+glow*cb);
+    }
+    const Rdir=reflect(rayDir,N);
+    const refl=envStudio(Rdir,L);
+    const out=[refl[0]*F+trans[0]*(1-F), refl[1]*F+trans[1]*(1-F), refl[2]*F+trans[2]*(1-F)];
+    const spec=specHL(N,V,L,380,1.0);
+    const edge=Math.pow(Math.max(0,1-cosI),6);
+    return [Math.min(1,out[0]+spec+edge*.05), Math.min(1,out[1]+spec+edge*.02), Math.min(1,out[2]+spec-edge*.02)];
+  }
+
+  // ── Jade shader (SSS + waxy specular) ──
+  function shadeJade(P,N,V,rayDir,L,cr,cg,cb,ph) {
+    const cosI=Math.abs(dot(N,V));
+    const diff=Math.max(0,dot(N,scale3(L,-1)));
+    const sat=0.72;
+    let col=[cr*(diff*.65+0.15+sat*.1), cg*(diff*.65+0.15+sat*.1), cb*(diff*.65+0.15+sat*.1)];
+    // Forward-scatter SSS
+    const fwd=Math.max(0,dot(L,V));
+    const sss=Math.pow(fwd,2.8)*0.45*(Math.sin(P[0]*3+ph)*Math.cos(P[1]*2.5+ph)+1)*0.5;
+    col=[Math.min(1,col[0]+sss*cr), Math.min(1,col[1]+sss*cg), Math.min(1,col[2]+sss*cb)];
+    // Fresnel rim
+    const rimF=fresnelS(cosI,1.0,1.66);
+    const rim=envStudio(reflect(rayDir,N),L);
+    col=[col[0]*(1-rimF*.55)+rim[0]*rimF*.5, col[1]*(1-rimF*.55)+rim[1]*rimF*.5, col[2]*(1-rimF*.55)+rim[2]*rimF*.5];
+    const spec=specHL(N,V,L,28,0.55);
+    return [Math.min(1,col[0]+spec*.9), Math.min(1,col[1]+spec*.95), Math.min(1,col[2]+spec)];
+  }
+
+  // ── Gold shader ──
+  function shadeGold(P,N,V,rayDir,L,cr,cg,cb,ph) {
+    const cosI=Math.abs(dot(N,V));
+    const F0=[0.96,0.84,0.50];
+    const F=[F0[0]+(1-F0[0])*Math.pow(1-cosI,5), F0[1]+(1-F0[1])*Math.pow(1-cosI,5), F0[2]+(1-F0[2])*Math.pow(1-cosI,5)];
+    const Rdir=reflect(rayDir,N);
+    const env=envGold(Rdir,L);
+    const col=[env[0]*F[0]*cr*2.1, env[1]*F[1]*cg*2.1, env[2]*F[2]*cb*2.0];
+    const spec=specHL(N,V,L,460,1.0);
+    const spec2=specHL(N,V,L,70,0.18);
+    const groove=Math.pow(Math.abs(Math.sin(P[0]*8+ph)*Math.sin(P[1]*8+ph*.7)),.3)*.06;
+    return [Math.min(1,col[0]+spec+spec2*.7-groove), Math.min(1,col[1]+spec*.9+spec2*.6-groove), Math.min(1,col[2]+spec*.55+spec2*.3-groove)];
+  }
+
+  // ── Main raytrace loop ──
+  function raytrace(imgData, W, H, gem, t) {
+    const data=imgData.data;
+    const {r:gr, g:gg, b:gb, ior, dn, type:gtype} = gem;
+    const cr=gr/255, cg=gg/255, cb=gb/255;
+    const camZ=-3.2;
+    const L=norm([-0.6+Math.sin(t*.008)*.1, -0.75+Math.cos(t*.006)*.06, 0.4]);
+    const ph=t*.012;
+    const hw=W*.5, hh=H*.5, sc=1/Math.min(hw,hh);
+    for(let py=0;py<H;py++){
+      for(let px=0;px<W;px++){
+        const rx=(px-hw)*sc, ry=(py-hh)*sc;
+        const rayDir=norm([rx,ry,1.0]);
+        const rayOri=[0,0,camZ];
+        const hit=sphereHit(rayOri,rayDir,1.0);
+        const idx=(py*W+px)*4;
+        if(!hit){ data[idx]=248;data[idx+1]=244;data[idx+2]=238;data[idx+3]=255;continue; }
+        const [t0,t1]=hit;
+        const P=add3(rayOri,scale3(rayDir,t0));
+        const N=norm(P);
+        const V=norm(scale3(rayDir,-1));
+        let out;
+        if(gtype==='gold')        out=shadeGold(P,N,V,rayDir,L,cr,cg,cb,ph);
+        else if(gtype==='jade')   out=shadeJade(P,N,V,rayDir,L,cr,cg,cb,ph);
+        else                      out=shadeGlass(P,N,V,rayDir,t0,t1,L,cr,cg,cb,ior,dn);
+        data[idx]  =Math.min(255,Math.max(0,out[0]*255+.5)|0);
+        data[idx+1]=Math.min(255,Math.max(0,out[1]*255+.5)|0);
+        data[idx+2]=Math.min(255,Math.max(0,out[2]*255+.5)|0);
+        data[idx+3]=255;
+      }
+    }
+  }
+
+  // ── Animate: render at 2× then display at natural size for free AA ──
+  const RENDER = 200; // render res
+  cvs.width = RENDER; cvs.height = RENDER;
+  // Display size kept as-is (CSS controls it)
+  const ctx = cvs.getContext('2d');
+
+  const gemObj = { r: gemCol.r, g: gemCol.g, b: gemCol.b, ior: cfg.ior||1.6, dn: cfg.dn, type };
+  let t = Math.random()*300;
+
+  function fr() {
+    const img = ctx.createImageData(RENDER, RENDER);
+    raytrace(img, RENDER, RENDER, gemObj, t);
+    ctx.putImageData(img, 0, 0);
+    t += 0.35;
+    cvs._af = requestAnimationFrame(fr);
+  }
+  fr();
+}
+
+// ══════════════════════════════════════════════════
+// VICTORY
+// ══════════════════════════════════════════════════
+function showVictory(cb){
+  const vs=document.getElementById('vs'),cvs=document.getElementById('vs-cv');
+  const ctx=cvs.getContext('2d');
+  let W=cvs.width=window.innerWidth,H=cvs.height=window.innerHeight;
+  const PCOLS=['#FFD060','#FF80A0','#80C0FF','#80FFB0','#FF80FF','#FFAA40','#FFF'];
+  const pts=Array.from({length:130},()=>({
+    x:W*.5+(Math.random()-.5)*40,y:H*.5+(Math.random()-.5)*40,
+    vx:(Math.random()-.5)*14,vy:-4-Math.random()*10,
+    grav:.22+Math.random()*.18,r:2+Math.random()*5,
+    col:PCOLS[Math.floor(Math.random()*PCOLS.length)],
+    rot:Math.random()*Math.PI*2,rotV:(Math.random()-.5)*.25,
+    shape:Math.random()<.5?'c':'d',life:1,decay:.007+Math.random()*.012,
+  }));
+  const rings=[
+    {r:0,mx:Math.min(W,H)*.55,sp:16,col:'rgba(212,168,67,',w:2},
+    {r:0,mx:Math.min(W,H)*.4,sp:12,col:'rgba(128,255,180,',w:1.5},
+    {r:0,mx:Math.min(W,H)*.7,sp:20,col:'rgba(180,120,255,',w:1},
+  ];
+  vs.classList.add('on');
+  let t=0;
+  function dr(){
+    ctx.clearRect(0,0,W,H);
+    if(t<8){
+      const fl=ctx.createRadialGradient(W*.5,H*.5,0,W*.5,H*.5,Math.min(W,H)*.5);
+      fl.addColorStop(0,`rgba(255,220,100,${.35*(1-t/8)})`);fl.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=fl;ctx.fillRect(0,0,W,H);
+    }
+    rings.forEach(ri=>{ri.r+=ri.sp;if(ri.r>ri.mx)return;const op=Math.max(0,1-ri.r/ri.mx);ctx.save();ctx.strokeStyle=ri.col+op+')';ctx.lineWidth=ri.w;ctx.beginPath();ctx.arc(W*.5,H*.5,ri.r,0,Math.PI*2);ctx.stroke();ctx.restore();});
+    pts.forEach(p=>{p.x+=p.vx;p.vy+=p.grav;p.y+=p.vy;p.rot+=p.rotV;p.life-=p.decay;if(p.life<=0)return;ctx.save();ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.col;ctx.translate(p.x,p.y);ctx.rotate(p.rot);if(p.shape==='d'){ctx.beginPath();ctx.moveTo(0,-p.r);ctx.lineTo(p.r*.6,0);ctx.lineTo(0,p.r);ctx.lineTo(-p.r*.6,0);ctx.closePath();ctx.fill();}else{ctx.beginPath();ctx.arc(0,0,p.r*.6,0,Math.PI*2);ctx.fill();}ctx.restore();});
+    t++;if(t<240)requestAnimationFrame(dr);
+  }
+  dr();
+  setTimeout(()=>{vs.classList.remove('on');vs.style.animation='none';void vs.offsetWidth;cb();},4000);
+}
+
+// ══════════════════════════════════════════════════
+// RESULT
+// ══════════════════════════════════════════════════
+function showResult(month,year){
+  const lz=document.getElementById('lzone');
+  lz.style.display='none';lz.style.minHeight='0';
+  const ra=document.getElementById('res-area');
+  ra.style.display='block';
+  document.getElementById('p4').classList.add('show-result');
+  const z=getZodiac(year),el=getElement(year);
+  document.getElementById('res-title').textContent=z.icon+' '+z.en+' · '+el+' Element · '+STONES[month].name;
+  document.getElementById('res-sub').textContent='Your bracelet has been forged for '+recipient+' · '+gender+' Energy · '+wish;
+  drawBracelet();
+  buildFate(z,el,month,year);
+  buildBeadCards();
+  const moons=['🌑','🌒','🌓','🌔','🌕','🌖','🌗','🌘'];
+  const mmsgs=['New Moon tonight — the most powerful night to set your bracelet\'s intention.','The Waxing Crescent amplifies new beginnings. Wear your bracelet tonight.','First Quarter brings decisive energy. Let your bracelet ground your choices.','Waxing Gibbous — abundance grows. Leave your jade under moonlight tonight.','Full Moon charges crystals with peak power. Place your bracelet outside.','Waning Gibbous — time to release. Let your bracelet absorb what no longer serves you.','Last Quarter brings reflection. Meditate with your bracelet in silence.','Dark Moon — deepest intentions. Sleep with your bracelet under your pillow.'];
+  const mi=Math.floor((new Date().getDate()/31)*8)%8;
+  document.getElementById('moon-hint').textContent=moons[mi]+' '+mmsgs[mi];
+}
+
+// ── 八卦命理分析数据 ──
+const BAGUA_DESTINY = {
+  // Destiny readings per element x zodiac combination
+  // format: {strength, weakness, tribulation, warning}
+  Metal: {
+    strength: 'Metal-born souls carry iron resolve and natural authority. You are decisive under pressure, forged to lead, and gifted with the ability to accumulate wealth even in adversity.',
+    weakness: 'Yet metal that is too rigid will snap. You may cling too firmly to your own view, appear cold to those who love you, and set impossible standards that quietly exhaust you. This is the shadow you must learn to soften.',
+    tribulation: 'In a Metal Year (Geng/Xin) or around your fortieth year, a pivotal crossroads awaits — a career rupture or family fracture. Do not let pride keep you from the reconciliation you deserve.',
+    warning: 'Caution: Overwork damages the lungs — the organ of Metal. Guard your breath in autumn and winter. Avoid major financial decisions in Water Years (Ren/Gui). Be wary of westward and northward travel this season.',
+  },
+  Water: {
+    strength: 'Water souls carry deep wisdom and fluid intelligence. Your intuition is extraordinary — you read people and situations with uncanny accuracy. Many Water-born discover their gifts in art, philosophy, or the hidden sciences.',
+    weakness: "But water without a vessel has no form. You can drift into indecision, feel overwhelmed by others' emotions, and vanish into endless reflection without ever arriving at shore. The art of containment is your lifelong practice.",
+    tribulation: 'Between ages thirty-five and forty-two, or in a Water Year, expect a season of emotional or spiritual darkness — perhaps a relationship dissolves, or the mind turns against itself. Water that fills to the brim must overflow. Do not flee this trial; sit inside it.',
+    warning: 'Caution: The kidneys and bladder govern Water energy — keep your lower back and core warm in winter. Never make irreversible decisions during Earth Years (Wu/Ji) or in moments of emotional low tide.',
+  },
+  Wood: {
+    strength: 'Wood souls bloom with creative life force and boundless compassion. You possess a moral core that rarely wavers, and your presence genuinely nourishes those around you. Many Wood-born become healers, teachers, or makers of beautiful things.',
+    weakness: 'Yet too much Wood bends toward the undeserving. You may pour yourself into people who take without giving, say yes when every cell says no, or cling to ideals long after reality demands a compromise. Learning to refuse is an act of self-respect, not cruelty.',
+    tribulation: 'Between twenty-eight and thirty-six, or in a Wood Year, a trial of betrayal arrives — from a friend, a partner, or your own straying heart. This tribulation tests whether your kindness is wisdom or weakness. Meet it with both.',
+    warning: 'Caution: The liver and gallbladder hold Wood energy — anger is your most corrosive force; protect yourself from it in spring. Avoid business expansion or major investments in Metal Years (Geng/Xin), when Wood is under pressure.',
+  },
+  Fire: {
+    strength: 'Fire souls burn brilliant and magnetic. Charisma is your native language; you walk into a room and the temperature rises. Born performers and natural leaders, Fire-born build influence with astonishing speed when passion is aligned with purpose.',
+    weakness: 'But wildfire burns everything in its path, including those who love it. Impulsivity, volcanic anger, and a consuming hunger for recognition can leave a trail of scorched relationships. Learning to burn steadily rather than brilliantly is your deepest work.',
+    tribulation: 'Around your forty-fifth year, or in a Fire Year, a crisis of reputation or power arrives. The fall from influence can be sudden. The heart — literal and metaphorical — is your most vulnerable organ. Pride is the accelerant that turns a spark into an inferno.',
+    warning: 'Caution: The heart and small intestine govern Fire — cool and rest in summer, guard against mental exhaustion. In Water Years (Ren/Gui), when Fire is suppressed, stay low, conserve energy, and prepare rather than perform.',
+  },
+  Earth: {
+    strength: 'Earth souls are the bedrock on which others build their lives. Reliable, patient, and endlessly loyal, you are the guardian and the architect — the one people call when the world shakes. Earth-born accumulate slowly and hold firmly.',
+    weakness: 'But earth that never moves becomes mud. You may cling too long to outgrown patterns, mistake caution for wisdom, or trade spiritual aliveness for the illusion of security. The hollow feeling that visits you in quiet moments is asking for more than comfort.',
+    tribulation: 'Around your fiftieth year, or in an Earth Year, the ground itself may shift — a family upheaval, a property dispute, or a long-suppressed health issue demanding attention. When the earth cracks, it is asking you to examine what was buried there.',
+    warning: 'Caution: The spleen and stomach hold Earth energy — overthinking is your silent poison; protect digestion during seasonal transitions. Avoid major property decisions or long-term financial commitments in Wood Years (Jia/Yi).',
+  },
+};
+
+// 八卦卦象命运加成
+const TRIGRAM_FATE_ADD = {
+  '☰': {name:'乾', add:'Qian (Heaven) binds your fate to themes of power, authority, and the father. You may rise very high — but the I Ching warns: "The dragon at the summit battles; its blood runs dark." The apex carries the seed of its own undoing.'},
+  '☱': {name:'兑', add:'Dui (Lake) blesses you with rare eloquence and social grace. Yet the shadow of Dui is words that wound — watch that your tongue does not cut you, and be wary of those who approach with honey in their mouths.'},
+  '☲': {name:'离', add:'Li (Fire) illuminates your path with brilliance and honor, but fire that lights others may consume itself. Your intelligence shines like a lantern in the dark — learn also to shelter your own flame.'},
+  '☳': {name:'震', add:'Zhen (Thunder) governs sudden upheaval and transformation. You will face shock and reversal more than once — but after each thunder, life re-emerges with unexpected force. Your practice: calm at the center of the storm.'},
+  '☴': {name:'巽', add:'Xun (Wind) gives you the rare gift of gentle persuasion — you move people without force. But wind without direction is merely weather. When great decisions arise, you must become the eye of the storm, not the gust that changes direction.'},
+  '☵': {name:'坎', add:'Kan (Water) marks a life of genuine difficulty and extraordinary resilience. The I Ching says: "Felling trees, blow by blow." Nothing comes easily to you — but what you build endures long after easier victories have crumbled.'},
+  '☶': {name:'艮', add:'Gen (Mountain) gives you the stillness that others find unshakeable. You know when to stop, when to wait, when to simply be. But the mountain that never moves eventually becomes the obstruction. Stillness must breathe.'},
+  '☷': {name:'坤', add:'Kun (Earth) carries the virtue of boundless receiving — you nourish everyone who comes to you. Yet Kun\'s deepest warning is the wandering that comes when one gives everything and loses the thread back to oneself. Find your north star and hold it.'},
+};
+
+function buildFate(z,el,month,year){
+  document.getElementById('fate-grid').innerHTML=`
+    <div class="fi-box"><span class="fi-ic">${z.icon}</span><div class="fi-lbl">Zodiac Sign</div><div class="fi-val">${z.en} · ${z.cn}</div></div>
+    <div class="fi-box"><span class="fi-ic">${{Metal:'⚔',Water:'💧',Wood:'🌿',Fire:'🔥',Earth:'🌍'}[el]}</span><div class="fi-lbl">Five Element</div><div class="fi-val">${el} · ${{'Metal':'金','Water':'水','Wood':'木','Fire':'火','Earth':'土'}[el]}</div></div>
+    <div class="fi-box"><span class="fi-ic">💎</span><div class="fi-lbl">Guardian Stone</div><div class="fi-val">${STONES[month].name}</div></div>
+    <div class="fi-box"><span class="fi-ic">${curTrigram?curTrigram.sym:'☯'}</span><div class="fi-lbl">Trigram</div><div class="fi-val">${curTrigram?curTrigram.name.split('·')[0].trim():'中和'}</div></div>
+  `;
+
+  // ── Main wish reading
+  const em=ELEM_MAP[el]||ELEM_MAP.Earth;
+  const wt=wish.toLowerCase().split(' ')[0];
+  const etext=em[wt]||em.love;
+  const tmpl=FATE_TMPL[wish]||FATE_TMPL['Wisdom & Clarity'];
+  const mainText=tmpl.replace(/{zodiac}/g,z.en).replace(/{trait}/g,z.trait).replace(/{element}/g,el).replace(/{elem}/g,etext);
+
+  // ── Bagua destiny data
+  const dest=BAGUA_DESTINY[el]||BAGUA_DESTINY.Earth;
+  const triAdd=curTrigram?TRIGRAM_FATE_ADD[curTrigram.sym]:null;
+
+  // ── Birth year cycle tribulation
+  const yearEnd=year%10;
+  const heavenStems=['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+  const earthBranches=['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  const stem=heavenStems[year%10];
+  const branch=earthBranches[year%12];
+
+  document.getElementById('fate-read').innerHTML=`
+    <div class="fate-section">
+      <div class="fate-sec-title">✦ Your Destiny Theme</div>
+      <p>${mainText}</p>
+    </div>
+
+    <div class="fate-section fate-sec-strength">
+      <div class="fate-sec-title fate-positive">☀ Natural Strengths</div>
+      <p>${dest.strength}</p>
+    </div>
+
+    <div class="fate-section fate-sec-weakness">
+      <div class="fate-sec-title fate-caution">⚠ Shadows & Weaknesses</div>
+      <p>${dest.weakness}</p>
+    </div>
+
+    <div class="fate-section fate-sec-tribulation">
+      <div class="fate-sec-title fate-danger">☈ Tribulations Ahead</div>
+      <p>${dest.tribulation}</p>
+      <p style="margin-top:8px;font-size:.9em;opacity:.8">Your Heavenly Stem is <em>${stem}</em> and Earthly Branch is <em>${branch}</em>. This pairing suggests <em>three major life trials</em>, each separated by roughly twelve years.</p>
+    </div>
+
+    ${triAdd ? `
+    <div class="fate-section fate-sec-trigram">
+      <div class="fate-sec-title fate-purple">${curTrigram.sym} ${triAdd.name} Trigram Guidance</div>
+      <p>${triAdd.add}</p>
+    </div>` : ''}
+
+    <div class="fate-section fate-sec-warning">
+      <div class="fate-sec-title fate-danger">🚫 Warnings & Cautions</div>
+      <p>${dest.warning}</p>
+      <p style="margin-top:8px;font-size:.9em;opacity:.8">Wearing Guidance: <em>${wish.includes('Wealth')||wish.includes('Career')?'Wear on the right wrist; most potent when facing East.':'Wear on the left wrist, heart side, so the stones speak directly to your energy field.'}</em> On the 1st and 15th of each lunar month, place your bracelet under moonlight to cleanse and recharge.</p>
+    </div>
+  `;
+}
+
+function buildBeadCards(){
+  const g=document.getElementById('bgrid');g.innerHTML='';
+  // Add section label
+  const lbl=document.createElement('div');
+  lbl.style.cssText='font-family:Cinzel,serif;font-size:.68rem;color:rgba(107,80,16,.5);letter-spacing:.22em;text-transform:uppercase;text-align:center;margin-bottom:var(--sp-sm);padding-top:var(--sp-xs);';
+  lbl.textContent='✦ Your Sacred Materials · 点击珠子了解详情 ✦';
+  g.appendChild(lbl);
+
+  allBeads.filter(b=>!b.small).forEach((b,idx)=>{
+    const el=document.createElement('div');el.className='bc';
+    el.style.opacity='0';el.style.transform='translateY(18px)';
+    el.style.transition=`opacity .5s ${idx*80}ms, transform .5s ${idx*80}ms`;
+    // Why this material — richer text
+    const whyMap={
+      crystal:'selected for its light-refracting energy and ability to amplify intentions.',
+      jade:'chosen for its protective properties and deep connection to Chinese spiritual tradition.',
+      gold:'included to attract prosperity and activate the Metal element in your reading.',
+    };
+    const typeKey=b.type||'crystal';
+    const whyText=b.material_reason||`${b.name} was ${whyMap[typeKey]||'selected to harmonise your energy field.'}`;
+    el.innerHTML=`
+      <div class="bc-gem-preview" style="--gc:${b.color||'#888'};--gg:${b.glow||'#aaa'};">
+        <div class="bc-gem-inner"></div>
+        <div class="bc-gem-shine"></div>
+      </div>
+      <div class="bc-text">
+        <div class="bc-nm">${b.name}${b.cn?' <span style="opacity:.6">· '+b.cn+'</span>':''}</div>
+        <div class="bc-ds">${b.meaning||b.cn}</div>
+        <div class="bc-why-row" style="display:none;">
+          <div class="bc-why-text">✦ ${whyText}</div>
+        </div>
+      </div>
+      <div class="bc-drop-btn" title="点击查看详情">☯</div>
+    `;
+    el.addEventListener('click',()=>{
+      const wr=el.querySelector('.bc-why-row');
+      const wasOpen=wr.style.display!=='none';
+      // Toggle this card
+      wr.style.display=wasOpen?'none':'block';
+      el.classList.toggle('bc-active',!wasOpen);
+      if(!wasOpen) triggerBeadDrop(b, el);
+    });
+    g.appendChild(el);
+    // Staggered entrance
+    requestAnimationFrame(()=>setTimeout(()=>{
+      el.style.opacity='1';el.style.transform='none';
+    },idx*80+50));
+  });
+}
+
+// Bead drop animation into bracelet
+function triggerBeadDrop(bead, cardEl) {
+  const bwrap=document.querySelector('.bwrap');
+  if(!bwrap)return;
+  const bwrapRect=bwrap.getBoundingClientRect();
+  const cardRect=cardEl.getBoundingClientRect();
+  
+  // Create flying bead
+  const fly=document.createElement('div');
+  fly.style.cssText=`
+    position:fixed;
+    width:22px;height:22px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,${bead.glow||'#D4A843'},${bead.color||'#B8860B'});
+    box-shadow:0 0 12px ${(bead.glow||'#D4A843')}88;
+    left:${cardRect.left+16}px;top:${cardRect.top+16}px;
+    z-index:9000;pointer-events:none;
+    transition:none;
+  `;
+  document.body.appendChild(fly);
+
+  // Target: center of bracelet SVG
+  const tx=bwrapRect.left+bwrapRect.width/2-11;
+  const ty=bwrapRect.top+bwrapRect.height/2-11;
+  
+  // Parabolic arc animation
+  let t=0;const dur=55;
+  const sx=cardRect.left+16, sy=cardRect.top+16;
+  const mx=(sx+tx)/2, my=Math.min(sy,ty)-80; // arc apex
+  function flyFrame(){
+    t++;
+    if(t>dur){
+      fly.remove();
+      // Flash the bracelet
+      const bsvg=document.getElementById('bsvg');
+      if(bsvg){
+        bsvg.style.filter='drop-shadow(0 0 20px rgba(184,134,11,.6))';
+        setTimeout(()=>{bsvg.style.filter='';},400);
+      }
+      return;
+    }
+    const p=t/dur;
+    // Bezier
+    const bx=(1-p)*(1-p)*sx+2*(1-p)*p*mx+p*p*tx;
+    const by=(1-p)*(1-p)*sy+2*(1-p)*p*my+p*p*ty;
+    fly.style.left=bx+'px';
+    fly.style.top=by+'px';
+    fly.style.opacity=Math.min(1,1-Math.max(0,(p-.7)/.3));
+    fly.style.transform=`scale(${1-p*.4})`;
+    requestAnimationFrame(flyFrame);
+  }
+  flyFrame();
+}
+
+let _braceletRotAF=null, _braceletRot=0;
+function drawBracelet(){
+  if(_braceletRotAF){cancelAnimationFrame(_braceletRotAF);_braceletRotAF=null;}
+  const svgEl=document.getElementById('bsvg');
+  const svg=svgEl; svg.innerHTML='';
+  const cx=160,cy=160,n=allBeads.length;
+  // Radius: snug fit like real bracelet, beads touching
+  const BR=16; // base bead radius (big, like 14mm real bead)
+  const circumference=n*(BR*2+3);
+  const R=Math.max(88, Math.min(126, circumference/(2*Math.PI)));
+
+  const NS='http://www.w3.org/2000/svg';
+  const defs=document.createElementNS(NS,'defs');
+  svg.appendChild(defs);
+
+  // Filters
+  defs.innerHTML=`
+    <filter id="gf" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="sf" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2"/>
+    </filter>
+    <filter id="glow-f" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>`;
+
+  // ── Red elastic thread (two parallel lines)
+  [-1.2,0,1.2].forEach((off,oi)=>{
+    const thr=document.createElementNS(NS,'circle');
+    thr.setAttribute('cx',cx); thr.setAttribute('cy',cy+off);
+    thr.setAttribute('r',R);
+    thr.setAttribute('fill','none');
+    thr.setAttribute('stroke', oi===1?'rgba(192,57,43,.55)':'rgba(192,57,43,.15)');
+    thr.setAttribute('stroke-width', oi===1?'1.2':'0.5');
+    svg.appendChild(thr);
+  });
+
+  // ── Build all bead elements
+  allBeads.forEach((b,i)=>{
+    const angle=(i/n)*2*Math.PI - Math.PI/2;
+    const x=cx+R*Math.cos(angle), y=cy+R*Math.sin(angle);
+
+    // Main bead is square (like the citrine cube in reference photo) — use the gold/jade type
+    const isSquare = b.type==='gold';
+    const br = isSquare ? BR+1 : b.small ? 9 : BR;
+
+    const gid='bg'+i;
+    // Radial gradient: bright highlight at 30% → mid color → dark edge (glass ball look)
+    const gr=document.createElementNS(NS,'radialGradient');
+    gr.setAttribute('id',gid);
+    gr.setAttribute('cx','34%'); gr.setAttribute('cy','26%'); gr.setAttribute('r','70%');
+    // Compute lighter highlight from base color
+    const hc=b.glow||b.color;
+    gr.innerHTML=`
+      <stop offset="0%"   stop-color="rgba(255,255,255,.9)"/>
+      <stop offset="12%"  stop-color="${hc}" stop-opacity=".95"/>
+      <stop offset="45%"  stop-color="${b.color}" stop-opacity=".88"/>
+      <stop offset="78%"  stop-color="${b.color}" stop-opacity=".75"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,.55)"/>`;
+    defs.appendChild(gr);
+
+    // Specular gradient (second highlight — lower right, like photo)
+    const sid='bs'+i;
+    const sg=document.createElementNS(NS,'radialGradient');
+    sg.setAttribute('id',sid);
+    sg.setAttribute('cx','68%'); sg.setAttribute('cy','72%'); sg.setAttribute('r','38%');
+    sg.innerHTML=`
+      <stop offset="0%"   stop-color="rgba(255,255,255,.18)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"/>`;
+    defs.appendChild(sg);
+
+    // Drop shadow
+    const sh=document.createElementNS(NS,'ellipse');
+    sh.setAttribute('cx',x+2); sh.setAttribute('cy',y+3.5);
+    sh.setAttribute('rx',br*.9); sh.setAttribute('ry',br*.65);
+    sh.setAttribute('fill','rgba(0,0,0,.28)');
+    sh.setAttribute('filter','url(#sf)');
+    sh.setAttribute('pointer-events','none');
+    svg.appendChild(sh);
+
+    // Soft glow behind bead
+    const gc=document.createElementNS(NS,'circle');
+    gc.setAttribute('cx',x); gc.setAttribute('cy',y);
+    gc.setAttribute('r',br+6);
+    gc.setAttribute('fill',b.glow||b.color);
+    gc.setAttribute('opacity','.10');
+    gc.setAttribute('filter','url(#sf)');
+    gc.setAttribute('pointer-events','none');
+    svg.appendChild(gc);
+
+    // ── BODY: square or round
+    let body;
+    if(isSquare){
+      // Rounded rectangle — like the citrine cube in photo
+      body=document.createElementNS(NS,'rect');
+      const hw=br*.88;
+      body.setAttribute('x',x-hw); body.setAttribute('y',y-hw);
+      body.setAttribute('width',hw*2); body.setAttribute('height',hw*2);
+      body.setAttribute('rx','4'); body.setAttribute('ry','4');
+      body.setAttribute('fill','url(#'+gid+')');
+      body.setAttribute('stroke','rgba(245,200,80,.55)');
+      body.setAttribute('stroke-width','1.2');
+    } else {
+      body=document.createElementNS(NS,'circle');
+      body.setAttribute('cx',x); body.setAttribute('cy',y);
+      body.setAttribute('r',br);
+      body.setAttribute('fill','url(#'+gid+')');
+      body.setAttribute('stroke','rgba(255,255,255,.22)');
+      body.setAttribute('stroke-width','0.8');
+    }
+    body.style.transition='opacity .5s';
+    body.style.opacity='0';
+    body.style.cursor='pointer';
+    body.addEventListener('mouseenter',e=>{
+      if(!isSquare) body.setAttribute('r', br+2.5);
+      showTip(b,e);
+    });
+    body.addEventListener('mouseleave',()=>{
+      if(!isSquare) body.setAttribute('r', br);
+      hideTip();
+    });
+    body.addEventListener('mousemove',moveTip);
+    svg.appendChild(body);
+
+    // Specular overlay (second highlight, lower-right)
+    const spec=document.createElementNS(NS, isSquare?'rect':'circle');
+    if(isSquare){
+      const hw=br*.88;
+      spec.setAttribute('x',x-hw);spec.setAttribute('y',y-hw);
+      spec.setAttribute('width',hw*2);spec.setAttribute('height',hw*2);
+      spec.setAttribute('rx','4');spec.setAttribute('ry','4');
+    } else {
+      spec.setAttribute('cx',x);spec.setAttribute('cy',y);spec.setAttribute('r',br);
+    }
+    spec.setAttribute('fill','url(#'+sid+')');
+    spec.setAttribute('pointer-events','none');
+    svg.appendChild(spec);
+
+    // Primary highlight — teardrop glint top-left (like photo)
+    const hl=document.createElementNS(NS,'ellipse');
+    hl.setAttribute('cx', x-br*.26); hl.setAttribute('cy', y-br*.30);
+    hl.setAttribute('rx', br*.24); hl.setAttribute('ry', br*.16);
+    hl.setAttribute('fill','rgba(255,255,255,.72)');
+    hl.setAttribute('pointer-events','none');
+    svg.appendChild(hl);
+
+    // Tiny sparkle dot
+    const sp=document.createElementNS(NS,'circle');
+    sp.setAttribute('cx',x-br*.12);sp.setAttribute('cy',y-br*.48);sp.setAttribute('r',br*.09);
+    sp.setAttribute('fill','rgba(255,255,255,.55)');sp.setAttribute('pointer-events','none');
+    svg.appendChild(sp);
+
+    // Inner translucency ring (depth effect)
+    if(!isSquare){
+      const ir=document.createElementNS(NS,'circle');
+      ir.setAttribute('cx',x);ir.setAttribute('cy',y);ir.setAttribute('r',br*.72);
+      ir.setAttribute('fill','none');
+      ir.setAttribute('stroke','rgba(255,255,255,.06)');
+      ir.setAttribute('stroke-width','1.5');
+      ir.setAttribute('pointer-events','none');
+      svg.appendChild(ir);
+    }
+
+    // Square bead: etched pattern (like the carved cube)
+    if(isSquare){
+      const etches=['M'+(x-6)+','+(y-3)+' L'+(x+6)+','+(y-3),
+                    'M'+(x-6)+','+y+' L'+(x+6)+','+y,
+                    'M'+(x-6)+','+(y+3)+' L'+(x+6)+','+(y+3),
+                    'M'+(x-3)+','+(y-6)+' L'+(x-3)+','+(y+6),
+                    'M'+x+','+(y-6)+' L'+x+','+(y+6),
+                    'M'+(x+3)+','+(y-6)+' L'+(x+3)+','+(y+6)];
+      etches.forEach(d=>{
+        const e=document.createElementNS(NS,'path');
+        e.setAttribute('d',d);
+        e.setAttribute('stroke','rgba(0,0,0,.18)');e.setAttribute('stroke-width','.5');
+        e.setAttribute('pointer-events','none');svg.appendChild(e);
+      });
+    }
+
+    // Animate in staggered
+    setTimeout(()=>{ body.style.opacity='1'; }, i*80+200);
+  });
+
+  // Center faint 緣 watermark
+  const ct=document.createElementNS(NS,'text');
+  ct.setAttribute('x',cx);ct.setAttribute('y',cy+20);ct.setAttribute('text-anchor','middle');
+  ct.setAttribute('font-size','56');ct.setAttribute('fill','rgba(184,134,11,.055)');
+  ct.setAttribute('font-family','serif');ct.textContent='緣';
+  svg.appendChild(ct);
+
+  // ── Rotate group
+  const bGroup=document.createElementNS(NS,'g');
+  bGroup.id='bead-rotate-group';
+  while(svg.children.length>1){bGroup.appendChild(svg.children[svg.children.length-1]);}
+  svg.appendChild(bGroup);
+  bGroup.appendChild(ct);
+
+  let rotDeg=0;
+  function rotateBracelet(){
+    rotDeg=(rotDeg+0.15)%360;
+    bGroup.setAttribute('transform',`rotate(${rotDeg},${cx},${cy})`);
+    _braceletRotAF=requestAnimationFrame(rotateBracelet);
+  }
+  const bwrap=document.querySelector('.bwrap');
+  if(bwrap){
+    bwrap.addEventListener('mouseenter',()=>{cancelAnimationFrame(_braceletRotAF);_braceletRotAF=null;});
+    bwrap.addEventListener('mouseleave',()=>{if(!_braceletRotAF)rotateBracelet();});
+    bwrap.addEventListener('touchstart',()=>{cancelAnimationFrame(_braceletRotAF);_braceletRotAF=null;},{passive:true});
+    bwrap.addEventListener('touchend',()=>{setTimeout(()=>{if(!_braceletRotAF)rotateBracelet();},1500);});
+  }
+  setTimeout(rotateBracelet,1400);
+}
+
+function showTip(b,e){const t=document.getElementById('bead-tip');document.getElementById('bt-n').textContent=b.name+(b.cn?' · '+b.cn:'');document.getElementById('bt-d').textContent=b.meaning||b.cn;t.style.left=(e.clientX-83)+'px';t.style.top=(e.clientY-82)+'px';t.classList.add('on');}
+function moveTip(e){const t=document.getElementById('bead-tip');t.style.left=(e.clientX-83)+'px';t.style.top=(e.clientY-82)+'px';}
+function hideTip(){document.getElementById('bead-tip').classList.remove('on');}
+
+function copyFate(){
+  const title=document.getElementById('res-title').textContent;
+  const reading=document.getElementById('fate-read').textContent;
+  navigator.clipboard.writeText('My Chinese Destiny Reading\n\n'+title+'\n\n'+reading+'\n\nGenerated at Fated Threads').then(()=>alert('Reading copied!'));
+}
+
+function restartAll(){
+  wish='';recipient='';gender='';ritualLit=0;
+  document.querySelectorAll('.chip,.rcard,.gbt').forEach(el=>el.classList.remove('sel'));
+  document.getElementById('bday').value='';
+  document.getElementById('lzone').style.display='block';
+  document.getElementById('res-area').style.display='none';
+  document.getElementById('pfill').style.width='0%';
+  document.getElementById('bgrid').innerHTML='';
+  document.getElementById('bro').classList.remove('on');
+  if(_broPartAF){cancelAnimationFrame(_broPartAF);_broPartAF=null;}
+  showPage('p1',false);
+}
+
+// ══════════════════════════════════════════════════
+// LANGUAGE TOGGLE (中 / EN)
+// ══════════════════════════════════════════════════
+let lang = 'en'; // 'en' or 'zh'
+const ZH_MAP = {
+  'Fated Threads': '命运红线',
+  'Ancient Crystal Oracle': '古水晶神谕',
+  'Get My Reading': '获取命运解读',
+  'Choose Your Birthday': '选择生日',
+  'Your Birth Date': '您的生日',
+  'Continue': '继续',
+  'Back': '返回',
+  'What Are You Manifesting?': '您在显化什么？',
+  'Who Is This Bracelet For?': '这条手链送给谁？',
+  'Forge My Bracelet': '锻造我的手链',
+  'Copy Reading': '复制解读',
+  'Share · 分享': '分享',
+  'Begin Again': '重新开始',
+  'Love': '爱情 Love',
+  'Wealth': '财富 Wealth',
+  'Health': '健康 Health',
+  'Career': '事业 Career',
+  'Peace': '平静 Peace',
+  'Wisdom': '智慧 Wisdom',
+  'Family': '家庭 Family',
+  'Myself': '自己',
+  'Partner': '伴侣',
+  'Friend': '朋友',
+  'Feminine': '阴性',
+  'Masculine': '阳性',
+  'Universal': '通用',
+};
+document.getElementById('btn-lang')?.addEventListener('click', function() {
+  lang = lang === 'en' ? 'zh' : 'en';
+  this.classList.toggle('active', lang === 'zh');
+  this.textContent = lang === 'zh' ? 'EN / 中' : '中 / EN';
+  applyLang();
+});
+function applyLang() {
+  document.querySelectorAll('[data-en]').forEach(el => {
+    el.textContent = lang === 'zh' ? (el.dataset.zh || el.dataset.en) : el.dataset.en;
+  });
+}
+
+// ══════════════════════════════════════════════════
+// SOUND TOGGLE (Web Audio API — chimes)
+// ══════════════════════════════════════════════════
+let soundOn = false;
+let _ac = null;
+document.getElementById('btn-sound')?.addEventListener('click', function() {
+  soundOn = !soundOn;
+  this.classList.toggle('active', soundOn);
+  this.textContent = soundOn ? '♪ On' : '♪';
+  if (soundOn) {
+    _ac = _ac || new (window.AudioContext || window.webkitAudioContext)();
+    playChime(528, .12); // little confirm tone
+  }
+});
+function playChime(freq, vol=0.15, dur=0.6) {
+  if (!soundOn || !_ac) return;
+  try {
+    const o = _ac.createOscillator();
+    const g = _ac.createGain();
+    o.connect(g); g.connect(_ac.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(freq, _ac.currentTime);
+    o.frequency.exponentialRampToValueAtTime(freq * 0.5, _ac.currentTime + dur);
+    g.gain.setValueAtTime(vol, _ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, _ac.currentTime + dur);
+    o.start(); o.stop(_ac.currentTime + dur);
+  } catch(e) {}
+}
+// Play chimes on key interactions
+const _origShowPage = showPage;
+// Hook page transitions with chime — wrap after definition
+document.addEventListener('click', e => {
+  if (!soundOn) return;
+  const btn = e.target.closest('.btn,.rcard,.chip,.gbt');
+  if (btn) playChime([396, 440, 528, 594, 660][Math.floor(Math.random()*5)], 0.1, 0.5);
+}, true);
+
+// ══════════════════════════════════════════════════
+// SHARE READING
+// ══════════════════════════════════════════════════
+function shareReading() {
+  const title = document.getElementById('res-title')?.textContent || 'My Fated Bracelet';
+  const fate = document.getElementById('fate-reading')?.textContent || '';
+  const text = `✦ ${title}\n\n${fate.slice(0,280)}…\n\n🔮 Fated Threads — Ancient Crystal Oracle`;
+  if (navigator.share) {
+    navigator.share({ title: 'Fated Threads', text }).catch(() => copyToClipboard(text));
+  } else {
+    copyToClipboard(text);
+  }
+}
+function copyToClipboard(text) {
+  navigator.clipboard?.writeText(text).then(() => showToast()).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); ta.remove(); showToast();
+  });
+}
+function showToast() {
+  const t = document.getElementById('copy-toast');
+  if (!t) return;
+  t.classList.add('on');
+  setTimeout(() => t.classList.remove('on'), 2200);
+}
+// Override copyFate to use toast
+const _origCopyFate = copyFate;
+
+// ══════════════════════════════════════════════════
+// WATER RIPPLE ENGINE — 水面金色波纹
+// ══════════════════════════════════════════════════
+(function(){
+  const cvs = document.getElementById('water-ripple');
+  if (!cvs) return;
+  const ctx = cvs.getContext('2d');
+  let W, H, cols, rows, curr, prev, _raf;
+  const DAMP = 0.985;
+  const GOLD_R=184, GOLD_G=134, GOLD_B=11;
+
+  function resize() {
+    W = cvs.width = Math.ceil(window.innerWidth / 3);
+    H = cvs.height = Math.ceil(window.innerHeight / 3);
+    cvs.style.width = window.innerWidth + 'px';
+    cvs.style.height = window.innerHeight + 'px';
+    curr = new Float32Array(W * H);
+    prev = new Float32Array(W * H);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Touch/mouse to create ripples
+  function addRipple(px, py, strength) {
+    const x = Math.floor(px / 3), y = Math.floor(py / 3);
+    if (x > 0 && x < W-1 && y > 0 && y < H-1) {
+      curr[y * W + x] += strength;
+      curr[(y-1) * W + x] += strength * .3;
+      curr[(y+1) * W + x] += strength * .3;
+      curr[y * W + (x-1)] += strength * .3;
+      curr[y * W + (x+1)] += strength * .3;
+    }
+  }
+
+  // Only respond to click/tap — no mousemove ripples (too frequent)
+  document.addEventListener('click', e => addRipple(e.clientX, e.clientY, 180));
+  document.addEventListener('touchend', e => {
+    if (e.changedTouches[0]) addRipple(e.changedTouches[0].clientX, e.changedTouches[0].clientY, 200);
+  }, {passive:true});
+
+  // Gentle auto-drops — like rain drops on still water
+  // 5 preset drip zones, each fires independently every 2.5-6s
+  const DRIP_ZONES = [
+    { xr: 0.18, yr: 0.32, interval: 2800 },
+    { xr: 0.72, yr: 0.24, interval: 4200 },
+    { xr: 0.45, yr: 0.68, interval: 3500 },
+    { xr: 0.82, yr: 0.62, interval: 5000 },
+    { xr: 0.28, yr: 0.78, interval: 3800 },
+  ];
+  DRIP_ZONES.forEach(zone => {
+    function drip() {
+      const ox = (Math.random() - 0.5) * 0.08;
+      const oy = (Math.random() - 0.5) * 0.08;
+      addRipple(
+        (zone.xr + ox) * window.innerWidth,
+        (zone.yr + oy) * window.innerHeight,
+        32 + Math.random() * 22
+      );
+      setTimeout(drip, zone.interval * (0.75 + Math.random() * 0.5));
+    }
+    setTimeout(drip, 500 + Math.random() * 2500);
+  });
+  function autoRipple() {}
+
+  function step() {
+    autoRipple();
+    const next = prev;
+    for (let y = 1; y < H-1; y++) {
+      for (let x = 1; x < W-1; x++) {
+        const i = y*W+x;
+        next[i] = (
+          curr[(y-1)*W+x] + curr[(y+1)*W+x] +
+          curr[y*W+(x-1)] + curr[y*W+(x+1)]
+        ) * 0.5 - next[i];
+        next[i] *= DAMP;
+      }
+    }
+    prev = curr;
+    curr = next;
+
+    // Render
+    const img = ctx.createImageData(W, H);
+    const data = img.data;
+    for (let y = 1; y < H-1; y++) {
+      for (let x = 1; x < W-1; x++) {
+        const i = y*W+x;
+        const dx = curr[i-1] - curr[i+1];
+        const dy = curr[i-W] - curr[i+W];
+        // Light refraction — maps to gold color
+        const intensity = Math.min(1, Math.max(0, (dx + dy + 3) / 6));
+        const bright = Math.min(1, Math.max(0, curr[i] / 80));
+        const alpha = bright * 0.65;
+        const pi = (y*W+x)*4;
+        data[pi]   = GOLD_R + dx * 8;   // R
+        data[pi+1] = GOLD_G + dy * 5;   // G
+        data[pi+2] = GOLD_B;             // B
+        data[pi+3] = Math.floor(alpha * 55 + intensity * 45);
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+    _raf = requestAnimationFrame(step);
+  }
+  step();
+})();
+
+// ════════════════════════════════════════════════════════
+// REALISTIC KOI FISH — Canvas animation
+// ════════════════════════════════════════════════════════
+(function initKoi(){
+  const cvs = document.getElementById('koi-canvas');
+  if(!cvs) return;
+  const ctx = cvs.getContext('2d');
+
+  function resize(){
+    cvs.width = window.innerWidth;
+    cvs.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // ── Gold/ink palette
+  const GOLD  = 'rgba(184,134,11,';
+  const GOLD2 = 'rgba(210,168,60,';
+  const INK   = 'rgba(42,28,8,';
+  const CREAM = 'rgba(255,248,225,';
+
+  // ── Koi fish — realistic, no stray lines
+  class Koi {
+    constructor(opts){
+      const W=cvs.width, H=cvs.height;
+      this.x   = opts.x   !== undefined ? opts.x   : W*0.2+Math.random()*W*0.6;
+      this.y   = opts.y   !== undefined ? opts.y   : H*0.2+Math.random()*H*0.6;
+      this.ang = opts.angle !== undefined ? opts.angle : Math.random()*Math.PI*2;
+      this.spd = opts.speed || 0.42+Math.random()*0.32;
+      this.L   = opts.len   || 85+Math.random()*45;
+      this.alpha= opts.alpha|| 0.24+Math.random()*0.16;
+      this.ci  = opts.colorIdx !== undefined ? opts.colorIdx : Math.floor(Math.random()*3);
+      this.tt  = Math.random()*Math.PI*2;
+      this.tv  = 0.050+Math.random()*0.018;
+      this.ta  = 0.26+Math.random()*0.10;
+      this.turnT=0; this.turnI=120+Math.random()*160; this.tgt=this.ang;
+    }
+
+    update(){
+      const W=cvs.width, H=cvs.height;
+      this.tt+=this.tv; this.turnT++;
+      if(this.turnT>this.turnI){
+        this.turnT=0; this.turnI=100+Math.random()*200;
+        let d=(Math.random()-0.5)*1.0;
+        const m=110;
+        if(this.x<m) d= Math.abs(d)*0.9;
+        if(this.x>W-m) d=-Math.abs(d)*0.9;
+        if(this.y<m) d+=0.45; if(this.y>H-m) d-=0.45;
+        this.tgt=this.ang+d;
+      }
+      let df=this.tgt-this.ang;
+      while(df> Math.PI)df-=Math.PI*2;
+      while(df<-Math.PI)df+=Math.PI*2;
+      this.ang+=df*0.015;
+      this.x+=Math.cos(this.ang)*this.spd;
+      this.y+=Math.sin(this.ang)*this.spd;
+      const m=55;
+      if(this.x<m){this.x=m;this.tgt=0.05;}
+      if(this.x>W-m){this.x=W-m;this.tgt=Math.PI-0.05;}
+      if(this.y<m){this.y=m;this.tgt=Math.PI*0.5;}
+      if(this.y>H-m){this.y=H-m;this.tgt=-Math.PI*0.5;}
+    }
+
+    draw(){
+      const L=this.L, tt=this.tt, sw=Math.sin(tt)*this.ta;
+      // TRUE SIDE VIEW: fish seen from the side, horizontal body
+      // Height is ~28% of length (realistic side-view ratio)
+      const H2 = L * 0.13;   // half-height of body at widest point
+      const COLS=[
+        ['rgba(215,170,45,','rgba(255,240,160,','rgba(160,115,8,',  'rgba(195,148,25,'],
+        ['rgba(195,145,35,','rgba(255,228,140,','rgba(145,100,6,',  'rgba(175,128,18,'],
+        ['rgba(75,50,16,',  'rgba(180,135,25,', 'rgba(50,32,5,',   'rgba(100,68,12,'],
+      ];
+      const[CB,CY,CF,CFF]=COLS[this.ci%3];
+
+      ctx.save();
+      ctx.globalAlpha=this.alpha;
+      ctx.translate(this.x,this.y);
+      ctx.rotate(this.ang);
+      // Head → +x,  Tail → -x
+
+      // ══ 1. CAUDAL FIN — single closed fan ══
+      const tbx=-L*0.42, tLen=L*0.30, fanH=H2*1.9, tSw=sw*9;
+      ctx.beginPath();
+      ctx.moveTo(tbx,  H2*0.08);
+      ctx.bezierCurveTo(tbx-tLen*0.30, H2*0.65+tSw*0.4, tbx-tLen*0.65, fanH+tSw*0.75, tbx-tLen, fanH+tSw);
+      ctx.bezierCurveTo(tbx-tLen*1.08, tSw*0.20, tbx-tLen*1.08, tSw*0.20, tbx-tLen,-fanH+tSw);
+      ctx.bezierCurveTo(tbx-tLen*0.65,-fanH+tSw*0.75, tbx-tLen*0.30,-H2*0.65+tSw*0.4, tbx,-H2*0.08);
+      ctx.closePath();
+      try{
+        const tg=ctx.createLinearGradient(tbx,0,tbx-tLen,tSw*0.25);
+        tg.addColorStop(0,CFF+'0.80)'); tg.addColorStop(0.5,CFF+'0.55)'); tg.addColorStop(1,CFF+'0.25)');
+        ctx.fillStyle=tg;
+      }catch(e){ctx.fillStyle=CFF+'0.55)';}
+      ctx.fill();
+      ctx.strokeStyle=CF+'0.35)'; ctx.lineWidth=0.7; ctx.stroke();
+      // Fan rays
+      for(let r=0;r<8;r++){
+        const rt=r/7, tipY=(rt*2-1)*fanH+tSw;
+        ctx.beginPath();
+        ctx.moveTo(tbx,(rt*2-1)*H2*0.06);
+        ctx.quadraticCurveTo(tbx-tLen*0.5,tipY*0.5,tbx-tLen*0.93,tipY);
+        ctx.strokeStyle=CF+'0.15)'; ctx.lineWidth=0.4; ctx.stroke();
+      }
+
+      // ══ 2. DORSAL FIN — sticks UP from body ══
+      const dh=H2*1.25*(1+Math.sin(tt*0.6)*0.05);
+      ctx.beginPath();
+      ctx.moveTo(L*0.12,-H2*0.78);
+      ctx.bezierCurveTo(L*0.04,-H2*0.76-dh*0.55,-L*0.06,-H2*0.74-dh,-L*0.13,-H2*0.68-dh);
+      ctx.bezierCurveTo(-L*0.19,-H2*0.62-dh*0.5,-L*0.21,-H2*0.68,-L*0.15,-H2*0.76);
+      ctx.closePath();
+      ctx.fillStyle=CFF+'0.44)'; ctx.fill();
+      ctx.strokeStyle=CF+'0.28)'; ctx.lineWidth=0.55; ctx.stroke();
+      for(let r=0;r<4;r++){
+        const rx=L*0.12-r*L*0.062;
+        ctx.beginPath(); ctx.moveTo(rx,-H2*0.78);
+        ctx.lineTo(rx-L*0.012,-H2*0.78-dh*(0.25+r*0.20));
+        ctx.strokeStyle=CF+'0.16)'; ctx.lineWidth=0.38; ctx.stroke();
+      }
+
+      // ══ 3. PECTORAL FIN — side fin near head, tilts down ══
+      const pf=Math.sin(tt*1.3)*0.25;
+      ctx.beginPath();
+      ctx.moveTo(L*0.15, H2*0.58);
+      ctx.bezierCurveTo(L*0.11+Math.cos(pf)*L*0.09,H2*0.58+H2*0.85,L*0.03+Math.cos(pf)*L*0.07,H2*0.50+H2,L*-0.01,H2*0.48);
+      ctx.bezierCurveTo(L*0.06,H2*0.52,L*0.12,H2*0.55,L*0.15,H2*0.58);
+      ctx.closePath();
+      ctx.fillStyle=CFF+'0.38)'; ctx.fill();
+      ctx.strokeStyle=CF+'0.22)'; ctx.lineWidth=0.5; ctx.stroke();
+
+      // ══ 4. MAIN BODY — elongated side-view shape ══
+      ctx.beginPath();
+      ctx.moveTo(L*0.40,0);            // snout tip
+      // Top edge: head→ widest (near 25%)→ tail root
+      ctx.bezierCurveTo(L*0.32,-H2*0.50, L*0.10,-H2, -L*0.08,-H2*(0.96+sw*0.04));
+      ctx.bezierCurveTo(-L*0.24,-H2*(0.88-sw*0.03), -L*0.34,-H2*0.44, -L*0.42,-H2*0.08+sw*H2*0.12);
+      // Bottom edge (reverse)
+      ctx.bezierCurveTo(-L*0.34,H2*0.44,-L*0.24,H2*(0.88+sw*0.03),-L*0.08,H2*(0.96-sw*0.04));
+      ctx.bezierCurveTo(L*0.10,H2, L*0.32,H2*0.50, L*0.40,0);
+      ctx.closePath();
+      // Body gradient — belly lighter, back darker
+      try{
+        const bg=ctx.createLinearGradient(0,-H2,0,H2);
+        bg.addColorStop(0,  CY+'0.82)');
+        bg.addColorStop(0.3,CB+'0.92)');
+        bg.addColorStop(0.65,CB+'0.90)');
+        bg.addColorStop(1,  CY+'0.80)');
+        ctx.fillStyle=bg;
+      }catch(e){ctx.fillStyle=CB+'0.88)';}
+      ctx.fill();
+      ctx.strokeStyle=CF+'0.28)'; ctx.lineWidth=0.65; ctx.stroke();
+
+      // ══ 5. SCALE PATTERN clipped inside body ══
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(L*0.40,0);
+      ctx.bezierCurveTo(L*0.32,-H2*0.50,L*0.10,-H2,-L*0.08,-H2*0.96);
+      ctx.bezierCurveTo(-L*0.24,-H2*0.88,-L*0.34,-H2*0.44,-L*0.42,-H2*0.08);
+      ctx.bezierCurveTo(-L*0.34,H2*0.44,-L*0.24,H2*0.88,-L*0.08,H2*0.96);
+      ctx.bezierCurveTo(L*0.10,H2,L*0.32,H2*0.50,L*0.40,0);
+      ctx.closePath(); ctx.clip();
+      ctx.strokeStyle=CF+'0.11)'; ctx.lineWidth=0.42;
+      const sr=H2*0.54;
+      for(let row=-1;row<=1;row++){
+        for(let col2=-4;col2<=2;col2++){
+          const sx=col2*H2*1.08+(Math.abs(row)%2)*H2*0.54+H2*0.2;
+          const sy=row*H2*0.65;
+          ctx.beginPath(); ctx.arc(sx,sy,sr,Math.PI,0); ctx.stroke();
+        }
+      }
+      ctx.restore();
+
+      // ══ 6. LATERAL LINE (side view hallmark) ══
+      ctx.beginPath();
+      ctx.moveTo(L*0.30,-H2*0.05);
+      ctx.bezierCurveTo(L*0.10,-H2*0.07,-L*0.10,-H2*0.04,-L*0.36,0);
+      ctx.strokeStyle=CB+'0.20)'; ctx.lineWidth=0.55; ctx.stroke();
+
+      // ══ 7. BELLY SHEEN ══
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(L*0.40,0);
+      ctx.bezierCurveTo(L*0.32,-H2*0.50,L*0.10,-H2,-L*0.08,-H2*0.96);
+      ctx.bezierCurveTo(-L*0.24,-H2*0.88,-L*0.34,-H2*0.44,-L*0.42,-H2*0.08);
+      ctx.bezierCurveTo(-L*0.34,H2*0.44,-L*0.24,H2*0.88,-L*0.08,H2*0.96);
+      ctx.bezierCurveTo(L*0.10,H2,L*0.32,H2*0.50,L*0.40,0);
+      ctx.closePath(); ctx.clip();
+      ctx.beginPath();
+      ctx.ellipse(L*0.06,-H2*0.50,L*0.16,H2*0.22,-0.12,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,0.13)'; ctx.fill();
+      ctx.restore();
+
+      // ══ 8. GILL SLIT — arc behind head ══
+      ctx.beginPath();
+      ctx.arc(L*0.20, H2*0.04, H2*0.88, -Math.PI*0.40, Math.PI*0.40);
+      ctx.strokeStyle=CF+'0.20)'; ctx.lineWidth=0.75; ctx.stroke();
+
+      // ══ 9. EYE — SIDE VIEW CORRECT POSITION ══
+      // In side view: eye center is at ~70% of head length, slightly above midline
+      // eyeX near head, eyeY just ABOVE the horizontal centerline (NOT near top of body)
+      const eyeX = L*0.26;
+      const eyeY = -H2*0.22;   // just slightly above body centerline
+      const eyeR = H2*0.30;    // eye fills ~60% of body height — realistic
+
+      // Iris (golden ring)
+      ctx.beginPath(); ctx.arc(eyeX,eyeY,eyeR,0,Math.PI*2);
+      ctx.fillStyle='rgba(200,165,30,0.30)'; ctx.fill();
+      ctx.strokeStyle=CF+'0.45)'; ctx.lineWidth=0.65; ctx.stroke();
+      // Pupil (large, dark)
+      ctx.beginPath(); ctx.arc(eyeX,eyeY,eyeR*0.62,0,Math.PI*2);
+      ctx.fillStyle='rgba(14,6,1,0.90)'; ctx.fill();
+      // Primary glint top-left
+      ctx.beginPath(); ctx.arc(eyeX-eyeR*0.24,eyeY-eyeR*0.24,eyeR*0.24,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,0.82)'; ctx.fill();
+      // Tiny secondary glint
+      ctx.beginPath(); ctx.arc(eyeX+eyeR*0.16,eyeY-eyeR*0.30,eyeR*0.10,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,255,255,0.40)'; ctx.fill();
+
+      // ══ 10. MOUTH ══
+      ctx.beginPath();
+      ctx.arc(L*0.385, H2*0.05, H2*0.13, 0.08, Math.PI*0.85);
+      ctx.strokeStyle=CF+'0.50)'; ctx.lineWidth=0.85; ctx.stroke();
+
+      ctx.restore();
+    }
+  }
+
+
+  // ── Lotus leaf class (floating)
+  class Lotus {
+    constructor(){
+      const W = cvs.width, H = cvs.height;
+      this.x = Math.random()*W;
+      this.y = Math.random()*H;
+      this.r = 28 + Math.random()*32;
+      this.angle = Math.random()*Math.PI*2;
+      this.driftX = (Math.random()-0.5)*0.07;
+      this.driftY = (Math.random()-0.5)*0.07;
+      this.swayPhase = Math.random()*Math.PI*2;
+      this.swaySpeed = 0.007 + Math.random()*0.005;
+      this.alpha = 0.16 + Math.random()*0.12;
+      this.veins = 7 + Math.floor(Math.random()*3);
+    }
+    update(){
+      this.swayPhase += this.swaySpeed;
+      this.angle += Math.sin(this.swayPhase)*0.003;
+      this.x += this.driftX + Math.sin(this.swayPhase*0.7)*0.05;
+      this.y += this.driftY + Math.cos(this.swayPhase*0.5)*0.04;
+      const W=cvs.width, H=cvs.height;
+      if(this.x<-120)this.x=W+80;
+      if(this.x>W+120)this.x=-80;
+      if(this.y<-120)this.y=H+80;
+      if(this.y>H+120)this.y=-80;
+    }
+    draw(){
+      ctx.save();
+      ctx.globalAlpha = this.alpha;
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.angle);
+      // Leaf circle with notch
+      ctx.beginPath();
+      ctx.moveTo(0,0);
+      ctx.arc(0, 0, this.r, 0.12, Math.PI*2-0.12);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(184,134,11,0.05)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(184,134,11,0.28)';
+      ctx.lineWidth = 0.7;
+      ctx.stroke();
+      // Radial veins
+      for(let i=0;i<this.veins;i++){
+        const va = (i/this.veins)*Math.PI*2 + 0.1;
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.lineTo(Math.cos(va)*this.r*0.90, Math.sin(va)*this.r*0.90);
+        ctx.strokeStyle = 'rgba(184,134,11,0.16)';
+        ctx.lineWidth = 0.45;
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+  }
+
+  // ── Create fish and lotus
+  const W = cvs.width, H = cvs.height;
+  const FISH = [
+    new Koi({x:W*0.2,  y:H*0.6, angle:0.3,  speed:0.55, len:120, alpha:0.32, colorIdx:0}),
+    new Koi({x:W*0.7,  y:H*0.25,angle:2.4,  speed:0.42, len:90,  alpha:0.25, colorIdx:1}),
+    new Koi({x:W*0.45, y:H*0.8, angle:5.1,  speed:0.38, len:75,  alpha:0.22, colorIdx:2}),
+    new Koi({x:W*0.85, y:H*0.5, angle:1.8,  speed:0.48, len:100, alpha:0.28, colorIdx:0}),
+  ];
+  const LOTUSES = [
+    new Lotus(), new Lotus(), new Lotus(), new Lotus(),
+  ];
+  // Randomize lotus positions manually
+  LOTUSES[0].x=W*0.82; LOTUSES[0].y=H*0.78;
+  LOTUSES[1].x=W*0.12; LOTUSES[1].y=H*0.15;
+  LOTUSES[2].x=W*0.55; LOTUSES[2].y=H*0.05;
+  LOTUSES[3].x=W*0.90; LOTUSES[3].y=H*0.40;
+
+  // ── Animation loop
+  let koiT = 0;
+  function koiFrame(){
+    requestAnimationFrame(koiFrame);
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    koiT++;
+    // Draw lotuses
+    LOTUSES.forEach(l=>{l.update();l.draw();});
+    // Draw fish
+    FISH.forEach(f=>{f.update();f.draw();});
+  }
+  koiFrame();
+})();
+
+
+// ════════════════════════════════════════
+// PAGE TRANSITION — Bagua ink sweep
+// ════════════════════════════════════════
+(function(){
+  const overlay=document.getElementById('page-sweep');
+  const cv=document.getElementById('sweep-cv');
+  if(!overlay||!cv)return;
+  const SYMS=['☰','☱','☲','☳','☴','☵','☶','☷'];
+  let raf=null;
+
+  window.playPageSweep=function(){
+    if(raf)cancelAnimationFrame(raf);
+    const W=cv.width=window.innerWidth;
+    const H=cv.height=window.innerHeight;
+    const ctx=cv.getContext('2d');
+    overlay.style.opacity='1';
+
+    // Particles: trigram symbols sweep left→right
+    const pts=Array.from({length:22},(_,i)=>({
+      x:-40-Math.random()*160,
+      y:Math.random()*H,
+      vx:9+Math.random()*10,
+      vy:(Math.random()-.5)*1.5,
+      sym:SYMS[i%8],
+      sz:13+Math.random()*18,
+      a:0.25+Math.random()*0.45,
+      life:0,
+    }));
+    // Ink wave rings from center
+    const waves=Array.from({length:4},(_,i)=>({
+      r:0, speed:16+i*8,
+      maxR:Math.hypot(W,H)*0.6,
+      alpha:0.10-i*0.018, delay:i*5,
+    }));
+    let curtX=-W*0.02, frame=0, total=52;
+
+    function draw(){
+      ctx.clearRect(0,0,W,H);
+      frame++;
+      const p1=Math.min(1,frame/18);   // curtain phase
+      const p2=Math.max(0,(frame-18)/34); // fade-out phase
+
+      // Ink curtain sweep
+      curtX+=W/17;
+      if(curtX<W*1.1){
+        const g=ctx.createLinearGradient(curtX-90,0,curtX+30,0);
+        g.addColorStop(0,'rgba(42,26,6,0)');
+        g.addColorStop(0.4,'rgba(42,26,6,0.05)');
+        g.addColorStop(1,'rgba(42,26,6,0.18)');
+        ctx.fillStyle=g;
+        ctx.fillRect(0,0,curtX+30,H);
+      }
+      // Wave rings
+      waves.forEach(w=>{
+        if(frame<w.delay)return;
+        w.r+=w.speed;
+        if(w.r>w.maxR)return;
+        const a=w.alpha*(1-w.r/w.maxR)*(1-p2*0.9);
+        if(a<=0.005)return;
+        ctx.beginPath();
+        ctx.arc(W*.5,H*.5,w.r,0,Math.PI*2);
+        ctx.strokeStyle=`rgba(184,134,11,${a})`;
+        ctx.lineWidth=1.0; ctx.stroke();
+      });
+      // Trigram particles
+      pts.forEach(p=>{
+        p.x+=p.vx*(1-p2*0.65); p.y+=p.vy; p.life++;
+        if(p.x>W+60)return;
+        const fade=p2>0.5?(1-(p2-0.5)*2):1;
+        const a=p.a*Math.min(1,p.life/6)*fade;
+        if(a<=0.01)return;
+        ctx.save();
+        ctx.globalAlpha=a;
+        ctx.font=`${p.sz}px serif`;
+        ctx.fillStyle='rgba(184,134,11,0.9)';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(p.sym,p.x,p.y);
+        ctx.restore();
+      });
+      if(frame<total){raf=requestAnimationFrame(draw);}
+      else{ctx.clearRect(0,0,W,H);overlay.style.opacity='0';overlay.style.pointerEvents='none';raf=null;}
+    }
+    raf=requestAnimationFrame(draw);
+  };
+
+  // Hook into showPage
+  const _sp=showPage;
+  showPage=function(id,spectacular){
+    _sp(id,spectacular);
+    if(id!=='ritual-screen')playPageSweep();
+  };
+})();
+
+// ════════════════════════════════════════════════════════════
+
+// ════════════════════════════════════════════════════════════
+
+
+
+
+</script>
+</body>
+</html>
